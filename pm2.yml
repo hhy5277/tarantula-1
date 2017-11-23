@@ -1,0 +1,21 @@
+apps:
+  -
+    name: supder-spider
+    script: app.js
+    instances: 4
+    exec_mode: cluster
+    env:
+      NODE_ENV: production
+    out_file: /dev/stdout
+    error_file: /dev/stderr
+    merge_logs: true
+  -
+    name: supder-spider-cron
+    script   : app.js
+    instances: 1
+    args: --cron
+    env    :
+      NODE_ENV: production
+    out_file: /dev/stdout
+    error_file: /dev/stdout
+    merge_logs: true
