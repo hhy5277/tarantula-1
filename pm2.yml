@@ -1,7 +1,7 @@
 apps:
   -
-    name: supder-spider
-    script: app.js
+    name: tarantula
+    script: lib/app.js
     instances: 4
     exec_mode: cluster
     env:
@@ -10,8 +10,8 @@ apps:
     error_file: /dev/stderr
     merge_logs: true
   -
-    name: supder-spider-cron
-    script   : app.js
+    name: tarantula-cron
+    script   : lib/app.js
     instances: 1
     args: --cron
     env    :

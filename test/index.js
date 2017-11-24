@@ -14,8 +14,8 @@ require('../lib/config')(async function (){
     it("crawl page without javascript", async function(){
       this.timeout(1000 * 30)
 
-      const r = execFileSync('node', [
-        `${__dirname}/../bin/crawler.js`,
+      const r = execFileSync('./bin/tarantula', [
+        "crawler",
         `${__dirname}/../examples/crawl_no_javascript.js`
       ], execOption)
 
@@ -25,8 +25,8 @@ require('../lib/config')(async function (){
     it("crawl image", async function(){
       this.timeout(1000 * 5)
 
-      const r = execFileSync('node', [
-        `${__dirname}/../bin/crawler.js`,
+      const r = execFileSync('./bin/tarantula', [
+        `crawler`,
         `${__dirname}/../examples/crawl_image.js`
       ], execOption)
 

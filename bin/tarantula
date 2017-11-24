@@ -1,0 +1,24 @@
+#!/usr/bin/env node
+
+'ues strict'
+
+const program = require('commander'),
+        debug = {
+          info: require("debug")("info")
+        }
+
+program
+  .version('0.1.0')
+  .command("dispatch <server>", "tarantula client")
+  .command("crawler <scriptPath>", "test the client script")
+  .option('--init', "init")
+  .parse(process.argv)
+
+;(async () => {
+  debug.info("fuck")
+  // if (program.init){
+  //
+  // }
+  //
+  // program.help()
+})()

@@ -1,0 +1,214 @@
+#!/usr/bin/env node
+
+'ues strict'
+
+const request = require('request-promise'),
+            _ = require('lodash'),
+        async = require('async'),
+      program = require('commander'),
+       logger = require('log4js').getLogger(),
+{ execSync, execFileSync } = require('child_process'),
+         zlib = require('zlib')
+
+
+  const TIME_SLEEP = 1000 * 60 * 10,
+OUTPUT_BUFFER_SIZE = 1024 * 1024 * 20,
+   PROCESS_TIMEOUT = 1000 * 60 * 2,
+       MAX_PROCESS = 5
+
+program
+  .option('--max-process <n>', "max process number", MAX_PROCESS, parseInt)
+  .option('-s --server <address>', "server address", "http://localhost:3000")
+  .option('--debug', "debug mode", process.env.NODE_ENV != 'production')
+  .parse(process.argv)
+
+
+const DEBUG = program.debug,
+   ROOT_URL = program.server,
+  TASK_PATH = `${ROOT_URL}/api/task`,
+RESULT_PATH = `${ROOT_URL}/api/result`
+SCRIPT_PATH = `${ROOT_URL}/api/script`
+
+const MESSAGE_ID_GOT_NOTHING = 0x01,
+      MESSAGE_ID_SEND_FAILED = 0x02
+
+logger.level = "ALL"
+
+;function killProcessTree(){
+  if (DEBUG){
+    return
+  }
+
+  try{
+    execSync(`pgrep -P ${process.pid} -t "?"`).toString().match(/\d+/g).forEach((pid) => {
+      execSync(`kill ${pid}`)
+    })
+  }catch(e){}
+}
+
+;function clean(){
+  if (DEBUG){
+    return
+  }
+
+  logger.info('clean.')
+
+  const commands = [
+    'rm -rf xvfb-run.* > /dev/null 2>&1',
+    'rm -rf /tmp/slimerjs.* > /dev/null 2>&1',
+    'rm -rf /tmp/xvfb-run.* > /dev/null 2>&1',
+    'rm -rf /tmp/.X*-lock > /dev/null 2>&1',
+    'rm -rf /tmp/.X11-unix/* > /dev/null 2>&1',
+    `rm -rf "${__dirname}/core."* > /dev/null 2>&1`,
+  ]
+
+  _.each(commands, (n) => execSync(n))
+}
+
+logger.info(`debug mode: ${DEBUG}`)
+
+;(async function main(){
+  logger.info(`let's play.`)
+
+  // clean()
+
+  Promise.resolve().then(async () => {
+    return _.chain(await request({
+      url: TASK_PATH,
+      form: {},
+      json: true,
+    })).thru((r) => {
+      return [
+        r.proxies,
+        DEBUG ? _.sampleSize(r.tasks, 5) : r.tasks
+      ]
+    }).value()
+  }).then(([proxies, tasks]) => {
+    if (_.isNil(tasks) || _.isEmpty(tasks)){
+      throw {
+        messageId: MESSAGE_ID_GOT_NOTHING
+      }
+    }
+
+    return new Promise((resolve, reject) => {
+      async.mapLimit(tasks, program.maxProcess, async (task) => {
+        let ctx
+        try{ ctx = JSON.parse(task.context) }catch(e){}
+
+        const forceProxy = _.get(ctx, 'force_proxy')
+        const disableProxy = _.get(ctx, 'disable_proxy')
+        const processTimeout = _.get(ctx, 'wait_timeout', PROCESS_TIMEOUT)
+
+        const runCommand = `${__dirname}/crawler.js`
+        const runParams = [`--url ${task.url}`]
+
+        if (task.context){
+          runParams.push(`--context ${task.context}`)
+        }
+
+        const env = _.merge({}, process.env, ctx || {})
+        const proxy = _.chain(proxies).sample().value()
+
+        if ((Number(task.attempts) == 0 && !disableProxy && proxy) || (forceProxy && proxy)){
+          _.merge(env, {
+            http_proxy: `${proxy.proxy_type}://${proxy.ip}:${proxy.port}`,
+            https_proxy: `${proxy.proxy_type}://${proxy.ip}:${proxy.port}`,
+          })
+        }
+
+        try{
+          const stdout = await execFileSync(runCommand, runParams, {
+            env: env,
+            maxBuffer: OUTPUT_BUFFER_SIZE,
+            timeout: Number(processTimeout),
+            //killSignal: 'SIGINT',     //SIGKILL
+          })
+
+          const taskResult = JSON.parse(stdout)
+
+          if (Number(taskResult.status) != 200){
+            throw taskResult.status
+          }
+
+          return {
+            id: task.id,
+            result: taskResult.result,
+            tasks: _.chain(taskResult.tasks || []).map((n) => {
+              n.context = _.isObject(n.context) ? JSON.stringify(n.context) : n.context
+
+              return n
+            }).value()
+          }
+        }catch(e){
+          if (task.attempts >= 3){
+            logger.error(`${runCommand} ${runParams} message: ${e}`)
+          }else{
+            logger.warn(`${runCommand} ${runParams} message: ${e}`)
+          }
+
+          return {
+            id: task.id
+          }
+        }
+      }, (err, result) => {
+        if (err){
+          return reject(err)
+        }
+
+        // killProcessTree()
+
+        resolve(result)
+      })
+    })
+  }).then((result) => {
+
+    if(DEBUG){
+      logger.info(JSON.stringify(result, null, 2))
+    }
+
+    const headers = { "content-type": "application/json" }
+    let sendBuffer = JSON.stringify({results: result})
+    if (sendBuffer.length > 1024){
+      _.merge(headers, {
+        "content-type": "gzip/json"
+      })
+
+      sendBuffer = zlib.gzipSync(sendBuffer)
+    }
+
+    logger.info(`send data to server. ${sendBuffer.length}`)
+
+    return new Promise((resolve, reject) => {
+      async.retry({
+        times: 10,
+        interval: 1000,
+      }, async () => {
+        return await request({
+          method: 'post',
+          url: RESULT_PATH,
+          headers: headers,
+          body: sendBuffer,
+        })
+      }, (error, r) => {
+        if (error){
+          reject({
+            messageId: MESSAGE_ID_SEND_FAILED,
+            message: error,
+          })
+        }
+
+        setTimeout(main, 0)
+      })
+    })
+  }).catch((e) => {
+    if (e.messageId == MESSAGE_ID_GOT_NOTHING){
+      logger.info(`got nothing.`)
+      setTimeout(main, TIME_SLEEP)
+    }else if (e.messageId == MESSAGE_ID_SEND_FAILED){
+      logger.error(`send data failed.`)
+      setTimeout(main, TIME_SLEEP)
+    }else{
+      logger.error(e)
+    }
+  })
+})()
