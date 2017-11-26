@@ -7,10 +7,14 @@ const program = require('commander'),
           info: require("debug")("info")
         }
 
+let version = 'dev'
+try {version = require("tarantula/package.json").version}catch(e){}
+
 program
-  .version('0.1.0')
+  .version(version)
   .command("dispatch <server>", "tarantula client")
   .command("crawler <scriptPath>", "test the client script")
+  .command("publish", "publish project")
   .option('--init', "init")
   .parse(process.argv)
 

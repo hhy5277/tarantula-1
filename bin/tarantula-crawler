@@ -2,20 +2,24 @@
 
 'use strict'
 
-// var ua = require('universal-analytics');
-// var visitor = ua('UA-5836737-13');
-// visitor.set("an", "uWall")
-// visitor.pageview("/fuck").send()
-
 const program = require("commander"),
       request = require("request-promise"),
 requireString = require('require-from-string'),
       phantom = require('phantom'),
         async = require("async"),
+           ua = require('universal-analytics'),
            fs = require('fs')
 
 
 global._ = require("lodash")
+
+let version = 'dev'
+try {version = require("tarantula/package.json").version}catch(e){}
+
+const visitor = ua('UA-5836737-15')
+visitor.set("an", "tarantula")
+visitor.set("av", version)
+
 
 const debug = {
   info: require("debug")("craw:info"),
@@ -24,6 +28,7 @@ const debug = {
 }
 
 program
+  .version(version)
   .option('--url <url>', "fetch the url")
   .option('--context <context>', "the context json as string", "{}")
   .parse(process.argv)
@@ -85,126 +90,137 @@ const MOBILE_UAs = [
   "Mozilla/5.0 (Linux; Android 5.1.1; Nexus 6 Build/LYZ28E) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Mobile Safari/537.36"
 ]
 
-;(async function() {
-  if (!external.config.javascriptEnabled){
-    let r = await request({
-      url: external.config.url,
-      headers: {
-        "User-Agent": _.sample(UAs),
-        // "Referer": referer
-      },
-      encoding: null
-    })
+async function fetchByRequest(){
+  let r = await request({
+    url: url,
+    headers: {
+      "User-Agent": _.sample(UAs),
+      // "Referer": referer
+    },
+    encoding: null
+  })
 
-    if (external.parser){
-      r = await external.parser(r)
-    }
-
-    console.log(JSON.stringify(r, null, 2))
-  }else{
-    //"--proxy-type=socks5", "--proxy=127.0.0.1:1080"
-    const instance = await phantom.create([], {
-      // logLevel: _.isEmpty(process.env.DEBUG) ? "none" : "info",
-      logger: {
-        warn: require("debug")("phantom:warn"),
-        debug: require("debug")("phantom:debug"),
-        error: require("debug")("phantom:error"),
-        info: require("debug")("phantom:info"),
-      }
-    })
-    const page = await instance.createPage()
-
-    _.chain(external).get("config", {}).pick([
-      "javascriptEnabled",
-      "loadImages",
-      "userAgent",
-    ]).thru((c) => {
-      return {
-        javascriptEnabled: c.javascriptEnabled || false,
-        userAgent: c.userAgent || (external.config.mobileMode ? _.sample(MOBILE_UAs) : _.sample(UAs)),
-        loadImages: c.loadImages || false,
-      }
-    }).forEach((v, k) => {
-      debug.info(`page setting: ${k} - ${v}`)
-      page.setting(k, v)
-    }).value()
-
-    debug.info(`mobile mode: ${external.config.mobileMode == true}`)
-    if (external.config.mobileMode){
-      page.property('viewportSize', {width: 800, height: 600})
-    }else{
-      page.property('viewportSize', {width: 1440, height: 900})
-    }
-
-    // await external.parser()
-    // debug.info(eval(external.parser).toString())
-    // process.exit()
-
-    await page.on('onResourceRequested', true, function(requestData, networkRequest, blockList) {
-
-      var isAbort = blockList.filter(function(n){
-        return new RegExp(n).test(requestData.url)
-      }).length > 0
-
-      if (isAbort){
-        console.warn("abort url:", requestData.url)
-        networkRequest.abort()
-        return
-      }
-
-      console.log("request: ", requestData.url)
-    }, _.chain(external.config).get("blockRequestReg", [
-      "google|gstatic|doubleclick",
-      "\\.(woff|ttf|svg)\\??",
-    ]).value())
-
-    // await page.on('onResourceReceived', true, function(responseData) {});
-    await page.on("onConsoleMessage", function(message){
-      debug.info("console message: ", message)
-    })
-
-    debug.info(`open url: ${url}`)
-    await page.open(url)
-
-    const ctx = _.clone(context)
-    async.retry({
-      times: 20 || Number.MAX_VALUE,
-      interval: 500,
-    }, async () => {
-      debug.info(`confirm jquery.`)
-      const isJquery = await page.evaluate(function() {
-        return typeof($$) == 'function'
-      })
-
-      if (!isJquery){
-        debug.info(`inject jquery.`)
-        await page.injectJs(require.resolve('jquery/dist/jquery.min.js'))
-        await page.evaluate(function() {
-          $$ = $.noConflict()
-        })
-      }
-
-      debug.info(`evaluate parser`)
-      const r = await page.evaluate(external.parser, ctx)
-      if (r.context){
-        _.merge(ctx, r.context)
-      }
-
-      if (r.result){
-        return r
-      }
-
-      throw new Error("retry evaluate.")
-    }, (err, result) => {
-      if (err){
-        debug.error(err)
-      }
-
-      console.log(JSON.stringify(result, null, 2))
-      instance.exit();
-    })
-
-    // const content = await page.property('content');
-    // console.log(content);
+  if (external.parser){
+    r = await external.parser(r)
   }
-})();
+
+  console.log(JSON.stringify(r, null, 2))
+}
+
+async function fetchByPhantom(){
+  //"--proxy-type=socks5", "--proxy=127.0.0.1:1080"
+  const instance = await phantom.create([], {
+    // logLevel: _.isEmpty(process.env.DEBUG) ? "none" : "info",
+    logger: {
+      warn: require("debug")("phantom:warn"),
+      debug: require("debug")("phantom:debug"),
+      error: require("debug")("phantom:error"),
+      info: require("debug")("phantom:info"),
+    }
+  })
+  const page = await instance.createPage()
+
+  _.chain(external).get("config", {}).pick([
+    "javascriptEnabled",
+    "loadImages",
+    "userAgent",
+  ]).thru((c) => {
+    return {
+      javascriptEnabled: c.javascriptEnabled || false,
+      userAgent: c.userAgent || (external.config.mobileMode ? _.sample(MOBILE_UAs) : _.sample(UAs)),
+      loadImages: c.loadImages || false,
+    }
+  }).forEach((v, k) => {
+    debug.info(`page setting: ${k} - ${v}`)
+    page.setting(k, v)
+  }).value()
+
+  debug.info(`mobile mode: ${external.config.mobileMode == true}`)
+  if (external.config.mobileMode){
+    page.property('viewportSize', {width: 800, height: 600})
+  }else{
+    page.property('viewportSize', {width: 1440, height: 900})
+  }
+
+  // await external.parser()
+  // debug.info(eval(external.parser).toString())
+  // process.exit()
+
+  await page.on('onResourceRequested', true, function(requestData, networkRequest, blockList) {
+
+    var isAbort = blockList.filter(function(n){
+      return new RegExp(n).test(requestData.url)
+    }).length > 0
+
+    if (isAbort){
+      console.warn("abort url:", requestData.url)
+      networkRequest.abort()
+      return
+    }
+
+    console.log("request: ", requestData.url)
+  }, _.chain(external.config).get("blockRequestReg", [
+    "google|gstatic|doubleclick",
+    "\\.(woff|ttf|svg)\\??",
+  ]).value())
+
+  // await page.on('onResourceReceived', true, function(responseData) {});
+  await page.on("onConsoleMessage", function(message){
+    debug.info("console message: ", message)
+  })
+
+  debug.info(`open url: ${url}`)
+  await page.open(url)
+
+  const ctx = _.clone(context)
+  async.retry({
+    times: 20 || Number.MAX_VALUE,
+    interval: 500,
+  }, async () => {
+    debug.info(`confirm jquery.`)
+    const isJquery = await page.evaluate(function() {
+      return typeof($$) == 'function'
+    })
+
+    if (!isJquery){
+      debug.info(`inject jquery.`)
+      await page.injectJs(require.resolve('jquery/dist/jquery.min.js'))
+      await page.evaluate(function() {
+        $$ = $.noConflict()
+      })
+    }
+
+    debug.info(`evaluate parser`)
+    const r = await page.evaluate(external.parser, ctx)
+    if (r.context){
+      _.merge(ctx, r.context)
+    }
+
+    if (r.result){
+      return r
+    }
+
+    throw new Error("retry evaluate.")
+  }, (err, result) => {
+    if (err){
+      debug.error(err)
+    }
+
+    console.log(JSON.stringify(result, null, 2))
+    instance.exit();
+  })
+
+  // const content = await page.property('content');
+  // console.log(content);
+}
+
+;(async function() {
+
+  visitor.event("a", "crawler", url).send()
+
+  if (!external.config.javascriptEnabled){
+    await fetchByRequest()
+  }else{
+    await fetchByPhantom()
+  }
+})()

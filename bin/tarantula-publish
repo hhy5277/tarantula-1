@@ -1,0 +1,19 @@
+#!/usr/bin/env node
+
+'ues strict'
+
+const program = require('commander')
+
+let version = 'dev'
+try {version = require("tarantula/package.json").version}catch(e){}
+
+program
+  .version(version)
+  .option('-n --name <projectName>', "project name")
+  .option('-s --server <serverAddress>', "server address")
+  .parse(process.argv)
+
+
+;(async () => {
+  console.log(program.name)
+})()

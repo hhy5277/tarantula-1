@@ -11,12 +11,16 @@ const request = require('request-promise'),
          zlib = require('zlib')
 
 
+let version = 'dev'
+try {version = require("tarantula/package.json").version}catch(e){}
+
   const TIME_SLEEP = 1000 * 60 * 10,
 OUTPUT_BUFFER_SIZE = 1024 * 1024 * 20,
    PROCESS_TIMEOUT = 1000 * 60 * 2,
        MAX_PROCESS = 5
 
 program
+  .version(version)
   .option('--max-process <n>', "max process number", MAX_PROCESS, parseInt)
   .option('-s --server <address>', "server address", "http://localhost:3000")
   .option('--debug', "debug mode", process.env.NODE_ENV != 'production')
@@ -26,7 +30,7 @@ program
 const DEBUG = program.debug,
    ROOT_URL = program.server,
   TASK_PATH = `${ROOT_URL}/api/task`,
-RESULT_PATH = `${ROOT_URL}/api/result`
+RESULT_PATH = `${ROOT_URL}/api/result`,
 SCRIPT_PATH = `${ROOT_URL}/api/script`
 
 const MESSAGE_ID_GOT_NOTHING = 0x01,
