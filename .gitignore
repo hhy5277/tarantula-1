@@ -4,3 +4,5 @@
 
 **/public/styles/**
 **/public/javascripts/**
+
+config/database.json
