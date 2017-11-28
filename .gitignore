@@ -6,3 +6,4 @@
 **/public/javascripts/**
 
 config/database.json
+config/tarantula-config.json

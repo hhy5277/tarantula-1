@@ -7,22 +7,17 @@ const program = require('commander'),
           info: require("debug")("info")
         }
 
-let version = 'dev'
-try {version = require("tarantula/package.json").version}catch(e){}
+const version = (() => {
+  try{
+   return require("tarantula/package.json").version
+  }catch(e){
+   return 'dev'
+  }
+})()
 
 program
   .version(version)
   .command("dispatch <server>", "tarantula client")
-  .command("crawler <scriptPath>", "test the client script")
+  .command("crawl <scriptPath>", "test the client script")
   .command("publish", "publish project")
-  .option('--init', "init")
   .parse(process.argv)
-
-;(async () => {
-  debug.info("fuck")
-  // if (program.init){
-  //
-  // }
-  //
-  // program.help()
-})()

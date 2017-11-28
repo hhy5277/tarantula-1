@@ -11,8 +11,13 @@ const request = require('request-promise'),
          zlib = require('zlib')
 
 
-let version = 'dev'
-try {version = require("tarantula/package.json").version}catch(e){}
+const version = (() => {
+  try{
+   return require("tarantula/package.json").version
+  }catch(e){
+   return 'dev'
+  }
+})()
 
   const TIME_SLEEP = 1000 * 60 * 10,
 OUTPUT_BUFFER_SIZE = 1024 * 1024 * 20,
@@ -103,7 +108,7 @@ logger.info(`debug mode: ${DEBUG}`)
         const disableProxy = _.get(ctx, 'disable_proxy')
         const processTimeout = _.get(ctx, 'wait_timeout', PROCESS_TIMEOUT)
 
-        const runCommand = `${__dirname}/crawler.js`
+        const runCommand = `${__dirname}/tarantula-crawl`
         const runParams = [`--url ${task.url}`]
 
         if (task.context){
@@ -159,14 +164,14 @@ logger.info(`debug mode: ${DEBUG}`)
           return reject(err)
         }
 
-        // killProcessTree()
+        killProcessTree()
 
         resolve(result)
       })
     })
   }).then((result) => {
 
-    if(DEBUG){
+    if (DEBUG){
       logger.info(JSON.stringify(result, null, 2))
     }
 
@@ -199,6 +204,8 @@ logger.info(`debug mode: ${DEBUG}`)
             messageId: MESSAGE_ID_SEND_FAILED,
             message: error,
           })
+        }else{
+          resolve()
         }
 
         setTimeout(main, 0)

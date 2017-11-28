@@ -8,18 +8,19 @@ requireString = require('require-from-string'),
       phantom = require('phantom'),
         async = require("async"),
            ua = require('universal-analytics'),
-           fs = require('fs')
+           fs = require('fs'),
+         path = require('path')
 
 
 global._ = require("lodash")
 
-let version = 'dev'
-try {version = require("tarantula/package.json").version}catch(e){}
-
-const visitor = ua('UA-5836737-15')
-visitor.set("an", "tarantula")
-visitor.set("av", version)
-
+const version = (() => {
+  try{
+   return require("tarantula/package.json").version
+  }catch(e){
+   return 'dev'
+  }
+})()
 
 const debug = {
   info: require("debug")("craw:info"),
@@ -47,7 +48,7 @@ program
 const external = ((scriptFile) => {
   if (scriptFile){
     debug.info(`load script file: ${program.args[0]}`)
-    return require(program.args[0])
+    return require(path.resolve(program.args[0]))
   }
 
   process.stdin.setEncoding('utf8');
@@ -90,19 +91,33 @@ const MOBILE_UAs = [
   "Mozilla/5.0 (Linux; Android 5.1.1; Nexus 6 Build/LYZ28E) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Mobile Safari/537.36"
 ]
 
+const uuid = (() => {
+  const fullPath = `${require('os').homedir()}/.tarantula.json`
+
+  try{
+    return require(fullPath).uuid
+  }catch(e){
+    const uuid = require('uuid/v4')()
+
+    fs.writeFileSync(fullPath, JSON.stringify({
+      uuid: uuid
+    }, null, 2), 'utf-8')
+
+    return uuid
+  }
+})()
+
 async function fetchByRequest(){
   let r = await request({
     url: url,
     headers: {
       "User-Agent": _.sample(UAs),
-      // "Referer": referer
+      "Referer": _.get(external, "referer", ""),
     },
     encoding: null
   })
 
-  if (external.parser){
-    r = await external.parser(r)
-  }
+  r = await external.parser(r)
 
   console.log(JSON.stringify(r, null, 2))
 }
@@ -148,9 +163,9 @@ async function fetchByPhantom(){
 
   await page.on('onResourceRequested', true, function(requestData, networkRequest, blockList) {
 
-    var isAbort = blockList.filter(function(n){
+    var isAbort = blockList.find(function(n){
       return new RegExp(n).test(requestData.url)
-    }).length > 0
+    })
 
     if (isAbort){
       console.warn("abort url:", requestData.url)
@@ -214,13 +229,17 @@ async function fetchByPhantom(){
   // console.log(content);
 }
 
+const visitor = ua('UA-5836737-15', uuid)
+visitor.set("an", "tarantula")
+visitor.set("av", version)
+
 ;(async function() {
 
   visitor.event("a", "crawler", url).send()
 
-  if (!external.config.javascriptEnabled){
-    await fetchByRequest()
-  }else{
+  if (external.config.javascriptEnabled){
     await fetchByPhantom()
+  }else{
+    await fetchByRequest()
   }
 })()

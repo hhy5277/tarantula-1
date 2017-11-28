@@ -2,18 +2,125 @@
 
 'ues strict'
 
-const program = require('commander')
+const program = require('commander'),
+           fs = require('fs'),
+         path = require('path'),
+        chalk = require("chalk"),
+            _ = require("lodash"),
+      request = require("request-promise"),
+     readline = require('readline'),
+        debug = require("debug")("publish:info")
 
-let version = 'dev'
-try {version = require("tarantula/package.json").version}catch(e){}
+const version = (() => {
+  try{
+    return require("tarantula/package.json").version
+  }catch(e){
+    return 'dev'
+  }
+})()
 
 program
   .version(version)
   .option('-n --name <projectName>', "project name")
-  .option('-s --server <serverAddress>', "server address")
+  .option('-d --description <description>', "project description")
+  .option('-s --server <serverAddress>', "server address. ex: http://")
+  .option('--hours <n>', "every N hours to start.")
+  .option("--target <file or directory>", "file or directory")
   .parse(process.argv)
 
 
+function publishProject(params){
+  return Promise.resolve().then(async () => {
+    const r = await request({
+      method: 'post',
+      url: `${program.server}/api/project`,
+      json: true,
+      body: params
+    })
+
+    debug(r)
+
+    if (r.status == 0){
+      console.log(r.message)
+    }
+  }).catch(async (e) => {
+    if (e.statusCode == 401){
+
+      debug("not found token info.")
+
+      const q = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+      })
+
+      const token = await new Promise((resolve, reject) => {
+        q.question("please input token(http://tarantula.tech/token): ", resolve)
+      })
+
+      return publishProject(_.merge({}, params, {token}))
+    }
+
+    throw e
+  })
+}
+
 ;(async () => {
-  console.log(program.name)
+
+  Promise.resolve().then(async () => {
+    if (!program.target){
+      throw {message: "not found target param."}
+    }
+
+    return _.chain().thru(() => {
+      const stat = fs.statSync(program.target)
+
+      if (stat.isFile()){
+        return [path.resolve(program.target)]
+      }
+
+      if (stat.isDirectory()){
+        return _.map(fs.readdirSync(program.target), (n) => {
+          return path.resolve(`${program.target}/${n}`)
+        })
+      }
+    }).map((n) => {
+      const stat = fs.statSync(n)
+      if (stat.isDirectory()){
+        throw {message: "not support multi level directory."}
+      }
+
+      return {
+        isSeed: require(n).config.url != null,
+        name: path.parse(n).base,
+        content: fs.readFileSync(n).toString()
+      }
+    }).forEach((n) => {
+      debug(n.name)
+    }).value()
+  }).then(async (files) => {
+    if (_.isEmpty(program.server)){
+      throw {message: "not found server param."}
+    }
+
+    if (_.isEmpty(program.name)){
+      throw {message: "not found name param."}
+    }
+
+    if (_.isEmpty(program.description)){
+      throw {message: "not found description param."}
+    }
+
+    return publishProject(_.merge({}, _.pick(program, [
+      "server",
+      "name",
+      "description",
+      "hours",
+    ]), {files}))
+  }).catch((e) => {
+    if (e.message){
+      console.log(chalk.red(e.message))
+    }
+
+    program.help()
+  })
 })()
