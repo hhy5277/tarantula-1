@@ -15,7 +15,7 @@ require('../lib/config')(async function (){
       this.timeout(1000 * 30)
 
       const r = execFileSync('./bin/tarantula', [
-        "crawler",
+        "crawl",
         `${__dirname}/../examples/crawl_no_javascript.js`
       ], execOption)
 
@@ -26,7 +26,7 @@ require('../lib/config')(async function (){
       this.timeout(1000 * 5)
 
       const r = execFileSync('./bin/tarantula', [
-        `crawler`,
+        `crawl`,
         `${__dirname}/../examples/crawl_image.js`
       ], execOption)
 

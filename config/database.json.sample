@@ -1,0 +1,25 @@
+{
+  "production":{
+    "username": "root",
+    "password": null,
+    "database": "tarantula_production",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+
+  "test":{
+    "username": "root",
+    "password": null,
+    "database": "tarantula_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+
+  "development":{
+    "username": "root",
+    "password": null,
+    "database": "tarantula_development",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  }
+}

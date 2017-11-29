@@ -1,24 +1,11 @@
 {
   "production": {
-    "database": {
-      "username": "root",
-      "password": null,
-      "database": "tarantula_production",
-      "host": "127.0.0.1",
-      "dialect": "mysql"
-    }
   },
 
   "development":{
-    "database": {
-      "username": "root",
-      "password": null,
-      "database": "tarantula_development",
-      "host": "127.0.0.1",
-      "dialect": "mysql",
-    }
   },
 
   "default":{
+    "FETCH_MAX_TASK_COUNT": 100
   }
 }
