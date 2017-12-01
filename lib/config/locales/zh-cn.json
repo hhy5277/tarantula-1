@@ -2,13 +2,28 @@
   "menu": {
     "dashboard": "项目列表",
     "feedback": "问题反馈",
-    "stats": "信息统计"
+    "stats": "信息统计",
+
+    "checkUpdate": "查看新版"
   },
 
   "dashboard": {
     "deleteDialog": {
       "title": "确认删除 {name} 项目？",
       "content": "项目被删除之后，关联的脚本和任务也将会被删除。"
+    },
+
+    "addDialog": {
+      "title": "如何添加新项目？",
+      "content": [
+        "### 新建项目",
+        "`tarantula init <projectName>`",
+        "&ensp;",
+        "### 进入<projectName>编写相关代码",
+        "&ensp;",
+        "### 发布项目",
+        "`tarantula publish --name <projectName> -d <description> --target <projectDirectory> [--hours [每n小时启动项目]]`"
+      ]
     }
   },
 
@@ -21,6 +36,7 @@
   "string": {
     "confirm": "确认",
     "cancel": "取消",
-    "submit": "提交"
+    "submit": "提交",
+    "iknown": "知道了"
   }
 }

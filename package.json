@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "main": "app.js",
   "scripts": {
-    "start": "node_modules/.bin/gulp js && node_modules/.bin/gulp sass && node lib/app.js",
-    "dev": "node_modules/.bin/gulp js && node_modules/.bin/gulp sass && nodemon lib/app.js",
+    "start": "node_modules/.bin/gulp js && node_modules/.bin/gulp sprite && node_modules/.bin/gulp sass && node lib/app.js",
+    "dev": "node_modules/.bin/gulp js && node_modules/.bin/gulp sprite && node_modules/.bin/gulp sass && nodemon lib/app.js",
     "test": "node_modules/.bin/mocha --recursive",
     "debug": "node --debug --inspect lib/app.js"
   },

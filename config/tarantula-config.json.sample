@@ -6,6 +6,7 @@
   },
 
   "default":{
-    "FETCH_MAX_TASK_COUNT": 100
+    "ip_white_list": ['127.0.0.1'],
+    "fetch_max_task_count": 100
   }
 }
