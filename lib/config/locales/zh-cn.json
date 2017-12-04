@@ -24,6 +24,10 @@
         "### 发布项目",
         "`tarantula publish --name <projectName> -d <description> --target <projectDirectory> [--hours [每n小时启动项目]]`"
       ]
+    },
+
+    "projectStats":{
+      "emptyHint": "该项目目前没有任何任务，请稍后查看。"
     }
   },
 
