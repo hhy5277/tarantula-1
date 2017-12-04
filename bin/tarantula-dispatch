@@ -6,6 +6,7 @@ const request = require('request-promise'),
             _ = require('lodash'),
         async = require('async'),
       program = require('commander'),
+       moment = require('moment'),
        logger = require('log4js').getLogger(),
 { execSync, execFileSync } = require('child_process'),
          zlib = require('zlib')
@@ -32,7 +33,7 @@ program
   .parse(process.argv)
 
 
-const DEBUG = program.debug,
+const DEBUG = !_.isEmpty(program.debug),
    ROOT_URL = program.server,
   TASK_PATH = `${ROOT_URL}/api/task`,
 RESULT_PATH = `${ROOT_URL}/api/result`,
@@ -74,25 +75,69 @@ logger.level = "ALL"
   _.each(commands, (n) => execSync(n))
 }
 
+let scriptCode = [
+  /*
+  {
+    scriptName:
+    md5:
+    code:
+    updatedAt:
+  }
+  */
+]
+
 logger.info(`debug mode: ${DEBUG}`)
 
 ;(async function main(){
   logger.info(`let's play.`)
 
-  // clean()
+  clean()
 
   Promise.resolve().then(async () => {
-    return _.chain(await request({
+    return await request({
       url: TASK_PATH,
-      form: {},
       json: true,
-    })).thru((r) => {
-      return [
-        r.proxies,
-        DEBUG ? _.sampleSize(r.tasks, 5) : r.tasks
-      ]
-    }).value()
-  }).then(([proxies, tasks]) => {
+    })
+  }).then(async (r) => {
+    return await _.chain(r).get("tasks", []).map((n) => {
+      return {
+        scriptName: n.scriptName,
+        md5: n.md5,
+      }
+    })
+    .uniqWith(_.isEqual)
+    .reject((n) => {
+      const nn = _.find(scriptCode, (m) => m.scriptName == n.scriptName && m.md5 == n.md5)
+      if (nn){
+        nn.updatedAt = moment().toDate()
+      }
+
+      return nn
+    })
+    .thru(async (items) => {
+      if (_.isEmpty(items)){
+        return r
+      }
+
+      const itemsCode = await request({
+        method: 'post',
+        url: `${SCRIPT_PATH}/get_code`,
+        json: {items},
+      })
+
+      _.each(itemsCode || [], (n) => {
+        scriptCode.push(_.merge(n, {
+          updatedAt: moment().toDate()
+        }))
+      })
+
+      return r
+    })
+    .tap(() => {
+      scriptCode = _.filter((n) => moment().diff(n.updatedAt, "days") < 15)
+    })
+    .value()
+  }).then(({proxies, tasks}) => {
     if (_.isNil(tasks) || _.isEmpty(tasks)){
       throw {
         messageId: MESSAGE_ID_GOT_NOTHING
@@ -109,10 +154,16 @@ logger.info(`debug mode: ${DEBUG}`)
         const processTimeout = _.get(ctx, 'wait_timeout', PROCESS_TIMEOUT)
 
         const runCommand = `${__dirname}/tarantula-crawl`
-        const runParams = [`--url ${task.url}`]
+        const runParams = []
+
+        if(task.url){
+          runParams.push('--url')
+          runParams.push(task.url)
+        }
 
         if (task.context){
-          runParams.push(`--context ${task.context}`)
+          runParams.push('--context')
+          runParams.push(task.context)
         }
 
         const env = _.merge({}, process.env, ctx || {})
@@ -126,10 +177,12 @@ logger.info(`debug mode: ${DEBUG}`)
         }
 
         try{
+          const s = _.find(scriptCode, (n) => n.md5 == task.md5)
           const stdout = await execFileSync(runCommand, runParams, {
             env: env,
             maxBuffer: OUTPUT_BUFFER_SIZE,
             timeout: Number(processTimeout),
+            input: s.code,
             //killSignal: 'SIGINT',     //SIGKILL
           })
 
@@ -156,7 +209,8 @@ logger.info(`debug mode: ${DEBUG}`)
           }
 
           return {
-            id: task.id
+            id: task.id,
+            message: e || "unknown error"
           }
         }
       }, (err, result) => {
@@ -176,7 +230,7 @@ logger.info(`debug mode: ${DEBUG}`)
     }
 
     const headers = { "content-type": "application/json" }
-    let sendBuffer = JSON.stringify({results: result})
+    let sendBuffer = JSON.stringify({result})
     if (sendBuffer.length > 1024){
       _.merge(headers, {
         "content-type": "gzip/json"
@@ -189,7 +243,7 @@ logger.info(`debug mode: ${DEBUG}`)
 
     return new Promise((resolve, reject) => {
       async.retry({
-        times: 10,
+        times: 5,
         interval: 1000,
       }, async () => {
         return await request({

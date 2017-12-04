@@ -23,9 +23,9 @@ const version = (() => {
 })()
 
 const debug = {
-  info: require("debug")("craw:info"),
-  warn: require("debug")("craw:warn"),
-  error: require("debug")("craw:error"),
+  info: require("debug")("crawl:info"),
+  warn: require("debug")("crawl:warn"),
+  error: require("debug")("crawl:error"),
 }
 
 program
@@ -34,16 +34,7 @@ program
   .option('--context <context>', "the context json as string", "{}")
   .parse(process.argv)
 
-// var socks = require('socksv5');
-//
-// var srv = socks.createServer(function(info, accept, deny) {
-//   console.log(info)
-//   accept();
-// });
-// srv.listen(1080, 'localhost', function() {
-//   console.log('SOCKS server listening on port 1080');
-// });
-// srv.useAuth(socks.auth.None());
+  
 
 const external = ((scriptFile) => {
   if (scriptFile){
