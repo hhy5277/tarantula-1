@@ -8,6 +8,11 @@
   },
 
   "dashboard": {
+    "btnStats": "项目统计",
+    "btnDelete": "删除项目",
+    "btnTable": "查看数据",
+    "btnCron": "定时任务",
+
     "deleteDialog": {
       "title": "确认删除 {name} 项目？",
       "content": "项目被删除之后，关联的脚本和任务也将会被删除。"
