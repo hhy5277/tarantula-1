@@ -1,36 +1,21 @@
 'use strict'
 
-    const assert = require('assert'),
-{ execFileSync } = require('child_process')
+const assert = require('assert')
 
-const execOption = {
-  evn: process.env,
-  maxBuffer: 1024 * 1024 * 20,
-}
+let exitCode = 0
 
-require('../lib/config')(async function (){
+before(() => {
+  require('../lib/config')
+})
 
-  describe('crawl', function (){
-    it("crawl page without javascript", async function(){
-      this.timeout(1000 * 30)
+after(() => {
+  setTimeout(() => {
+    process.exit(exitCode)
+  }, 1000)
+})
 
-      const r = execFileSync('./bin/tarantula', [
-        "crawl",
-        `${__dirname}/../examples/crawl_no_javascript.js`
-      ], execOption)
-
-      assert(JSON.parse(r).result.title.match(/百度/))
-    })
-
-    it("crawl image", async function(){
-      this.timeout(1000 * 5)
-
-      const r = execFileSync('./bin/tarantula', [
-        `crawl`,
-        `${__dirname}/../examples/crawl_image.js`
-      ], execOption)
-
-      assert(JSON.parse(r).result.image.length > 1024)
-    })
-  })
+afterEach(function() {
+  if (this.currentTest.state === 'failed') {
+    exitCode = 1
+  }
 })
