@@ -9,6 +9,7 @@
     "ip_white_list": ['127.0.0.1'],
     "fetch_max_task_count": 100,
     "storage_path": "",
-    "auto_clean_expired_tasks": false
+    "auto_clean_expired_tasks": false,
+    "path_prefix": ""
   }
 }
