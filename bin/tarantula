@@ -17,6 +17,7 @@ const version = (() => {
 
 program
   .version(version)
+  .command("server", "start a server")
   .command("dispatch <server>", "tarantula client")
   .command("crawl <scriptPath>", "test the client script")
   .command("publish", "publish project")

@@ -1,15 +1,17 @@
 {
   "name": "tarantulajs",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "main": "app.js",
   "scripts": {
-    "start": "node_modules/.bin/gulp js && node_modules/.bin/gulp sprite && node_modules/.bin/gulp sass && node lib/app.js",
-    "dev": "node_modules/.bin/gulp js && node_modules/.bin/gulp sprite && node_modules/.bin/gulp sass && nodemon lib/app.js",
-    "build": "node_modules/.bin/gulp js && node_modules/.bin/gulp sprite && node_modules/.bin/gulp sass",
-    "test": "node_modules/.bin/mocha --recursive",
+    "prestart": "gulp js && gulp sprite && gulp sass",
+    "start": "node lib/app.js",
+    "predev": "gulp js && gulp sprite && gulp sass",
+    "dev": "nodemon lib/app.js",
+    "build": "gulp js && gulp sprite && gulp sass",
+    "test": "mocha --recursive",
     "debug": "node --debug --inspect lib/app.js"
   },
-  "author": "tarantula.tech",
+  "author": "tean <tean@tarantula.tech>",
   "license": "ISC",
   "repository": {
     "type": "git",
@@ -19,6 +21,13 @@
     "url": "https://github.com/hummer-studio/tarantula.git/issues"
   },
   "homepage": "http://tarantula.tech",
+  "bin": {
+    "tarantula": "./bin/tarantula",
+    "tarantula-crawl": "./bin/tarantula-crawl",
+    "tarantula-dispatch": "./bin/tarantula-dispatch",
+    "tarantula-publish": "./bin/tarantula-publish",
+    "tarantula-server": "./bin/tarantula-server"
+  },
   "dependencies": {
     "async": "^2.6.0",
     "autoprefixer-loader": "^3.2.0",
@@ -66,6 +75,7 @@
     "node-sass": "^3.13.1",
     "nodemailer": "^4.1.0",
     "phantom": "^4.0.8",
+    "pm2": "^2.7.2",
     "raven": "^2.2.1",
     "request-promise": "^4.1.1",
     "require-dir-all": "^0.4.9",
