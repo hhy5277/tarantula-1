@@ -12,7 +12,7 @@
     "debug": "node --debug --inspect lib/app.js"
   },
   "author": "tean <tean@tarantula.tech>",
-  "license": "ISC",
+  "license": "GPL",
   "repository": {
     "type": "git",
     "url": "https://github.com/hummer-studio/tarantula.git"
