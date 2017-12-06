@@ -8,6 +8,7 @@
   },
 
   "dashboard": {
+    "btnPlay": "立即执行",
     "btnStats": "项目统计",
     "btnDelete": "删除项目",
     "btnTable": "查看数据",
