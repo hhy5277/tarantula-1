@@ -26,15 +26,16 @@ const debug = {
   info: require("debug")("crawl:info"),
   warn: require("debug")("crawl:warn"),
   error: require("debug")("crawl:error"),
+  web: require("debug")("crawl:web"),
 }
 
 program
   .version(version)
   .option('--url <url>', "fetch the url")
-  .option('--context <context>', "the context json as string", "{}")
+  .option('--context <context>', "the context json as string")
   .parse(process.argv)
 
-  
+
 
 const external = ((scriptFile) => {
   if (scriptFile){
@@ -47,7 +48,7 @@ const external = ((scriptFile) => {
 })(program.args[0])
 
 const url = program.url || external.config.url
-const context = JSON.parse(program.context)
+const context = JSON.parse(program.context || external.config.context || "{}")
 
 debug.info(`url: ${url}`)
 debug.info(`context: ${JSON.stringify(context)}`)
@@ -172,7 +173,7 @@ async function fetchByPhantom(){
 
   // await page.on('onResourceReceived', true, function(responseData) {});
   await page.on("onConsoleMessage", function(message){
-    debug.info("console message: ", message)
+    debug.web(message)
   })
 
   debug.info(`open url: ${url}`)
