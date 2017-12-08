@@ -31,7 +31,7 @@ describe('models', function (){
         ]
       })
     }).spread((s, ss) => {
-      const n = _.find(ss, (n) => n.scriptId == s.get().scriptId && moment(n.day).isSame(moment().startOf('day')))
+      const n = _.find(ss, (n) => n.scriptId == s.get().scriptId && moment(n.day).isSame(moment().startOf('hours')))
       assert(n.undo == 1)
     })
   })
@@ -41,7 +41,7 @@ describe('models', function (){
 
     await bluebird.resolve(Project.getUndoTasks()).then((r) => {
       assert(r.tasks.length > 0)
-      
+
       return [
         r.tasks,
         Stats.findAll({raw: true})

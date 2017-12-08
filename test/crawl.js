@@ -13,18 +13,32 @@ describe('crawl', function (){
     this.timeout(1000 * 30)
 
     const r = execFileSync('./bin/tarantula', [
-      "crawl",
+      "dev",
+      "--test",
       `${__dirname}/../examples/crawl_no_javascript.js`
     ], execOption)
 
     assert(JSON.parse(r).result.title.match(/百度/))
   })
 
+  it("crawl page with javascript", async function(){
+    this.timeout(1000 * 30)
+
+    const r = execFileSync('./bin/tarantula', [
+      "dev",
+      "--test",
+      `${__dirname}/../examples/crawl_with_javascript.js`
+    ], execOption)
+
+    assert(JSON.parse(r).result.title.match(/关于百度/))
+  })
+
   it("crawl image", async function(){
     this.timeout(1000 * 5)
 
     const r = execFileSync('./bin/tarantula', [
-      `crawl`,
+      "dev",
+      "--test",
       `${__dirname}/../examples/crawl_image.js`
     ], execOption)
 
