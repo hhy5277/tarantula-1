@@ -6,11 +6,13 @@ Tarantula是一个分布式爬虫框架。由中心服务器和节点服务器�
 ## 安装
 `npm i -g tarantulajs`
 
+## 环境依赖
+- Node \>= 8.9.1
+- Mysql or Mariadb
+- Python2
+- Visual Studio 2012 (windows only)
 
-### 使用官方节点服务器工作
-
-
-## 开发者
+## 使用官方节点服务器工作
 
 #### 创建工程
 `tarantula dev --create YOUR_PROJECT_NAME`
@@ -25,7 +27,7 @@ Tarantula是一个分布式爬虫框架。由中心服务器和节点服务器�
 `tarantula publish --name YOUR_PROJECT_NAME --description YOUR_DESCRIPTION --target YOUR_PROJECT_DIRECTORY`
 
 
-### 私有化部署
+## 私有化部署
 
 #### 初始化配置文件
 `tarantula server --init`
