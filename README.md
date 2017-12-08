@@ -3,14 +3,14 @@
 Tarantula是一个分布式爬虫框架。由中心服务器和节点服务器构成。  
 官方网站: http://tarantula.tech
 
-## 安装
-`npm i -g tarantulajs`
-
 ## 环境依赖
 - Node \>= 8.9.1
 - Mysql or Mariadb
 - Python2
 - Visual Studio 2012 (windows only)
+
+## 安装
+`npm i -g tarantulajs`
 
 ## 使用官方节点服务器工作
 
