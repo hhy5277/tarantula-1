@@ -69,7 +69,6 @@
     "koa-static-cache": "^5.1.1",
     "koa-validation": "^0.1.9",
     "lodash": "^4.15.0",
-    "mocha": "^4.0.1",
     "moment": "^2.19.2",
     "mysql2": "^1.4.2",
     "node-sass": "^3.13.1",
@@ -92,7 +91,8 @@
     "test": "test"
   },
   "devDependencies": {
-    "nodemon": "^1.12.1"
+    "nodemon": "^1.12.1",
+    "mocha": "^4.0.1"
   },
   "description": ""
 }

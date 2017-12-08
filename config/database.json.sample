@@ -4,7 +4,11 @@
     "password": null,
     "database": "tarantula_production",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "pool": {
+      "max": 5,
+      "min": 1
+    }
   },
 
   "test":{
