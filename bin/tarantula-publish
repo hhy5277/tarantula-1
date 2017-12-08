@@ -23,7 +23,7 @@ program
   .version(version)
   .option('-n --name <projectName>', "project name")
   .option('-d --description <description>', "project description")
-  .option('-s --server <serverAddress>', "server address. ex: http://")
+  .option('-s --server <serverAddress>', "server address. ex: http://", "http://tarantula.tech")
   .option('--hours <n>', "every N hours to start.")
   .option("--target <file or directory>", "file or directory")
   .parse(process.argv)

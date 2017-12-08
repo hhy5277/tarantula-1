@@ -2,7 +2,11 @@
 
 'use strict'
 
-const program = require("commander")
+const program = require("commander"),
+           fs = require("fs"),
+         path = require("path"),
+{ spawnSync, spawn, execSync } = require('child_process')
+
 
 const version = (() => {
   try{
@@ -14,5 +18,66 @@ const version = (() => {
 
 program
   .version(version)
-  .option('-p --port <port>', "listen port")
+  .option('--create <project>', "create a project")
+  .option('--test <sciprtPath>', "test a script")
   .parse(process.argv)
+
+
+const template = `
+'use strict';
+
+const config = {
+  url: "https://www.baidu.com",                      //seed url
+  //content: "{}",                                  //init context(JSON string)
+
+  //javascriptEnabled: false,
+  //loadImages: false,
+  //userAgent: "",
+
+  //blockRequestReg: [],
+
+  //mobileMode: false,
+}
+
+async function parser(buffer, ctx){
+  const $ = require("cheerio").load(buffer.toString('utf-8'))
+
+  return {
+    result: {
+      title: $("title").text()
+    }
+  }
+}
+
+// if javascriptEnabled is true
+// function parser(ctx){
+// }
+
+module.exports = {
+  config,
+  parser,
+}
+`
+
+;(async () => {
+  if (program.create){
+    if (fs.existsSync(program.create)){
+      console.error(`${program.create} is exists.`)
+      return
+    }
+
+    fs.mkdirSync(program.create)
+    fs.writeFileSync(`${program.create}/main.js`, template.trim())
+
+    console.log(`
+      ${program.create} project is created. please edit ${program.create}/main.js
+
+      for test:
+      tarantula dev --test ${program.create}/main.js\n
+    `)
+  }
+
+  if (program.test){
+    execSync(`node ${__dirname}/tarantula-crawl ${program.test}`, {stdio:[0,1,2]})
+  }
+})()
