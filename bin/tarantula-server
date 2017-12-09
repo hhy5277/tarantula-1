@@ -52,11 +52,11 @@ async function initConfig(){
     return initConfig()
   }
 
-  const env = {
+  const env = _.merge({}, process.env, {
     NODE_ENV: process.env.NODE_ENV || "production",
     DB_CONFIG: program["db_config"] ? path.resolve(program["db_config"]) : null,
     TARANTULA_CONFIG: program["config"] ? path.resolve(program["config"]) : null,
-  }
+  })
 
   const configPath = `${packageRoot}/pm2.json`
   const config = _.chain(require(configPath)).get("apps").map((n) => {
@@ -83,7 +83,10 @@ async function initConfig(){
       })
 
       try{
-        await exec(`${packageRoot}/node_modules/.bin/sequelize`, ['db:create'], {env: env})
+        await exec(`${packageRoot}/node_modules/.bin/sequelize`, ['db:create'], {
+          cwd: packageRoot,
+          env: env
+        })
       }catch(e){}
 
       pm2.start(config, (err, apps) => {
