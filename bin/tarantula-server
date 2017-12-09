@@ -92,6 +92,11 @@ async function initConfig(){
         })
       }catch(e){}
 
+      await exec(`${packageRoot}/node_modules/.bin/sequelize`, ['db:migrate'], {
+        cwd: packageRoot,
+        env: env
+      })
+
       pm2.start(config, (err, apps) => {
         if (err){
           console.error(err)
