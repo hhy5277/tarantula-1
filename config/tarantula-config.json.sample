@@ -6,7 +6,7 @@
   },
 
   "default":{
-    "ip_white_list": ["127.0.0.1"],
+    "ip_white_list": [],
     "fetch_max_task_count": 100,
     "storage_path": "",
     "auto_clean_expired_tasks": false,
