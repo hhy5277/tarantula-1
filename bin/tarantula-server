@@ -28,7 +28,7 @@ program
   .option('--config <path>', "tarantula config path")
   .parse(process.argv)
 
-const packageRoot = require.resolve("tarantulajs")
+const packageRoot = path.dirname(require.resolve("tarantulajs"))
 
 async function initConfig(){
   const dbPath = `${packageRoot}/config/database.json.sample`
@@ -37,14 +37,14 @@ async function initConfig(){
   const randomStr = require(`${packageRoot}/lib/utilities/random_str`)
 
   fs.copyFileSync(dbPath, 'database.json')
-  fs.writeFileSync('tarantula-config.json', _.chain(require(configPath)).thru((n) => {
+  fs.writeFileSync('tarantula-config.json', _.chain(JSON.parse(fs.readFileSync(configPath))).thru((n) => {
     return _.merge(n, {
       default: {
         secret: randomStr(16),
-        token: randomStr(16),
+        token: randomStr(32),
       }
     })
-  }).value())
+  }).thru((n) => JSON.stringify(n, null, 2)).value())
 }
 
 ;(async () => {
@@ -78,13 +78,13 @@ async function initConfig(){
       const exec = require("tarantulajs/lib/app/utilities/exec")
 
       await exec("npm", ['run', 'build'], {
-        cwd: require.resolve("tarantulajs"),
+        cwd: packageRoot,
         env: env,
       })
 
       try{
         await exec(`${packageRoot}/node_modules/.bin/sequelize`, ['db:create'], {env: env})
-      }catch(e => {})
+      }catch(e){}
 
       pm2.start(config, (err, apps) => {
         if (err){
