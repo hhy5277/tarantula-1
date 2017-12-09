@@ -6,6 +6,7 @@ const program = require("commander"),
             _ = require("lodash"),
           pm2 = require('pm2'),
          path = require("path"),
+           fs = require("fs"),
      bluebird = require("bluebird")
 
 const version = (() => {
@@ -18,18 +19,40 @@ const version = (() => {
 
 program
   .version(version)
+  .option("--init", "init config")
   .option('--start', "start a server")
   .option('--stop', "stop the server")
+
   .option('-p --port <port>', "listen port")
+  .option('--db-config <path>', "database config path")
+  .option('--config <path>', "tarantula config path")
   .parse(process.argv)
 
 
+async function initConfig(){
+  const dbPath = require.resolve("tarantulajs/config/database.json.sample")
+  const configPath = require.resolve("tarantulajs/config/tarantula-config.json.sample")
+
+  fs.copyFileSync(dbPath, 'database.json')
+  fs.copyFileSync(dbPath, 'tarantula-config.json')
+}
+
 ;(async () => {
+  if (program.init){
+    return initConfig()
+  }
+
   const configPath = require.resolve("tarantulajs/pm2.json")
   const config = _.chain(require(configPath)).get("apps").map((n) => {
     return _.merge(n, {
       cwd: path.dirname(configPath),
-      // args: `${n.args} ${}`
+      env: {
+        NODE_ENV: process.env.NODE_ENV || "production",
+        DB_CONFIG: program["db-config"],
+        TARANTULA_CONFIG: program["config"],
+      },
+
+      args: `${n.args || ""} ${program.port ? "--port " + program.port : ""}`
     })
   }).thru((items) => ({apps: items})).value()
 
@@ -45,6 +68,7 @@ program
           console.error(err)
         }
 
+        console.log(`server started. http://localhost:${program.port || 3000}`)
         pm2.disconnect();
       })
     }
@@ -65,7 +89,6 @@ program
         })
       }).then(() => {
         pm2.list((err, apps) => {
-          console.log(apps.length)
           if (apps.length > 0){
             pm2.disconnect();
             return
@@ -76,7 +99,6 @@ program
               console.error(err)
             }
 
-            console.log("killDaemon")
             process.exit()
           })
         })
