@@ -24,7 +24,7 @@ program
   .option('--stop', "stop the server")
 
   .option('-p --port <port>', "listen port")
-  .option('--db-config <path>', "database config path")
+  .option('--db_config <path>', "database config path")
   .option('--config <path>', "tarantula config path")
   .parse(process.argv)
 
@@ -34,7 +34,7 @@ async function initConfig(){
   const configPath = require.resolve("tarantulajs/config/tarantula-config.json.sample")
 
   fs.copyFileSync(dbPath, 'database.json')
-  fs.copyFileSync(dbPath, 'tarantula-config.json')
+  fs.copyFileSync(configPath, 'tarantula-config.json')
 }
 
 ;(async () => {
@@ -48,7 +48,7 @@ async function initConfig(){
       cwd: path.dirname(configPath),
       env: {
         NODE_ENV: process.env.NODE_ENV || "production",
-        DB_CONFIG: path.resolve(program["db-config"]),
+        DB_CONFIG: path.resolve(program["db_config"]),
         TARANTULA_CONFIG: path.resolve(program["config"]),
       },
 
