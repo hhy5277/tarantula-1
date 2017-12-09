@@ -65,6 +65,9 @@ async function initConfig(){
       env: env,
 
       args: `${n.args || ""} ${program.port ? "--port " + program.port : ""}`
+
+      out_file: null,
+      error_file: null,
     })
   }).thru((items) => ({apps: items})).value()
 
