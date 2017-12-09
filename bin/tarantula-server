@@ -64,7 +64,7 @@ async function initConfig(){
       cwd: path.dirname(configPath),
       env: env,
 
-      args: `${n.args || ""} ${program.port ? "--port " + program.port : ""}`
+      args: `${n.args || ""} ${program.port ? "--port " + program.port : ""}`,
 
       out_file: null,
       error_file: null,
