@@ -47,7 +47,7 @@ Tarantula是一个分布式爬虫框架。由中心服务器和节点服务器�
 
 
 ## 示例代码
-- [多任务](examples/crawl_muti_task)
+- [多任务](tarantula/tree/master/examples/crawl_muti_task)
 - [图片下载](examples/crawl_image.js)
 - [源码解析](examples/crawl_no_javascript.js)
 - [点击事件通过jquery解析](examples/crawl_with_javascript.js)
