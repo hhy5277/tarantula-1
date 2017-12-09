@@ -48,8 +48,8 @@ async function initConfig(){
       cwd: path.dirname(configPath),
       env: {
         NODE_ENV: process.env.NODE_ENV || "production",
-        DB_CONFIG: program["db-config"],
-        TARANTULA_CONFIG: program["config"],
+        DB_CONFIG: path.resolve(program["db-config"]),
+        TARANTULA_CONFIG: path.resolve(program["config"]),
       },
 
       args: `${n.args || ""} ${program.port ? "--port " + program.port : ""}`
@@ -71,9 +71,7 @@ async function initConfig(){
         console.log(`server started. http://localhost:${program.port || 3000}`)
         pm2.disconnect();
       })
-    }
-
-    if (program.stop){
+    }else if (program.stop){
       const appNames = _.chain(config).get("apps").map("name").value()
 
       bluebird.map(appNames, (n) => {
@@ -103,6 +101,8 @@ async function initConfig(){
           })
         })
       })
+    }else{
+      process.exit()
     }
   })
 })()

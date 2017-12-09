@@ -1,6 +1,6 @@
 {
   "name": "tarantulajs",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "main": "app.js",
   "scripts": {
     "prestart": "gulp js && gulp sprite && gulp sass",
@@ -10,7 +10,7 @@
     "dev": "nodemon lib/app.js",
 
     "build": "gulp js && gulp sprite && gulp sass",
-    
+
     "test": "mocha --recursive",
     "debug": "node --debug --inspect lib/app.js"
   },
