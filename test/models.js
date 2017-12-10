@@ -51,7 +51,7 @@ describe('models', function (){
         assert(task.md5.length > 0)
 
         return Task.findById(task.id).then(({ status }) => {
-          assert(status == 'delivered')
+          assert(status == Task.getStatus().delivered)
         })
       })
     })
