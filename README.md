@@ -54,7 +54,7 @@ Tarantula是一个分布式爬虫框架。由中心服务器和节点服务器�
 ## 常见问题
 #### 全局模式安装失败
 可以尝试普通安装模式
-```
+```shell
 mkdir workdir
 cd workdir
 npm i tarantulajs
