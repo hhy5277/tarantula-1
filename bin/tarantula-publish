@@ -24,6 +24,7 @@ program
   .option('-n --name <projectName>', "project name")
   .option('-d --description <description>', "project description")
   .option('-s --server <serverAddress>', "server address. ex: http://", "http://tarantula.tech")
+  .option('--overwrite', "overwrite the project.")
   .option('--hours <n>', "every N hours to start.")
   .option("--target <file or directory>", "file or directory")
   .parse(process.argv)
@@ -42,6 +43,8 @@ function publishProject(params){
 
     if (r.status == 0){
       console.log(r.message)
+    }else{
+      console.log(chalk.red(r.message))
     }
   }).catch(async (e) => {
     if (e.statusCode == 401){
@@ -84,6 +87,10 @@ function publishProject(params){
         })
       }
     }).map((n) => {
+      if (!/.js$/.test(n)){
+        return
+      }
+
       const stat = fs.statSync(n)
       if (stat.isDirectory()){
         throw {message: "not support multi level directory."}
@@ -94,9 +101,7 @@ function publishProject(params){
         name: path.parse(n).base,
         content: fs.readFileSync(n).toString()
       }
-    }).forEach((n) => {
-      debug(n.name)
-    }).value()
+    }).compact().value()
   }).then(async (files) => {
     if (_.isEmpty(program.server)){
       throw {message: "not found server param."}
@@ -110,7 +115,9 @@ function publishProject(params){
       throw {message: "not found description param."}
     }
 
-    return publishProject(_.merge({}, _.pick(program, [
+    return publishProject(_.merge({
+      overwrite: program.overwrite != null,
+    }, _.pick(program, [
       "server",
       "name",
       "description",
