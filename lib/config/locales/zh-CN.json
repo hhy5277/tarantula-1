@@ -2,7 +2,6 @@
   "menu": {
     "dashboard": "项目列表",
     "feedback": "问题反馈",
-    "stats": "信息统计",
 
     "checkUpdate": "查看新版"
   },
@@ -12,6 +11,7 @@
     "btnStats": "项目统计",
     "btnDelete": "删除项目",
     "btnTable": "查看数据",
+    "btnReset": "重置失败任务",
     "btnCron": "定时任务",
 
     "deleteDialog": {
@@ -41,6 +41,14 @@
     "email": "电子邮箱",
     "emailHint": "请输入有效的电子邮件地址！",
     "content": "反馈信息"
+  },
+
+  "stats": {
+    "title": "项目统计"
+  },
+
+  "table": {
+    "title": "数据采样"
   },
 
   "string": {
