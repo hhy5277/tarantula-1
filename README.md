@@ -12,9 +12,7 @@ Tarantula是一个分布式爬虫框架。由中心服务器和节点服务器�
 ## 安装
 `npm i -g tarantulajs`
 
-## 使用官方节点服务器工作
-
-#### 创建工程
+## 创建工程
 `tarantula dev --create YOUR_PROJECT_NAME`
 
 #### 编写代码
@@ -23,9 +21,10 @@ Tarantula是一个分布式爬虫框架。由中心服务器和节点服务器�
 #### 测试代码
 `tarantula dev --test <scriptPath>`
 
+## 使用官方节点服务器工作
+
 #### 发布代码到官方服务器
 `tarantula publish --name YOUR_PROJECT_NAME --description YOUR_DESCRIPTION --target YOUR_PROJECT_DIRECTORY`
-
 
 ## 私有化部署
 
