@@ -22,13 +22,7 @@
     "addDialog": {
       "title": "如何添加新项目？",
       "content": [
-        "### 新建项目",
-        "`tarantula init <projectName>`",
-        "&ensp;",
-        "### 进入<projectName>编写相关代码",
-        "&ensp;",
-        "### 发布项目",
-        "`tarantula publish --name <projectName> -d <description> --target <projectDirectory> [--hours [每n小时启动项目]]`"
+        "https://github.com/hummer-studio/tarantula#%E5%88%9B%E5%BB%BA%E5%B7%A5%E7%A8%8B"
       ]
     },
 
