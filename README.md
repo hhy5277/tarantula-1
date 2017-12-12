@@ -36,7 +36,7 @@ Tarantula是一个分布式爬虫框架。由中心服务器和节点服务器�
 
 
 #### 启动服务器
-`tarantula server --start --db_config <path> --config <path> [-p [port]]`
+`tarantula server --start --db-config <path> --config <path> [-p [port]]`
 
 #### 客户端
 `tarantula dispatch -s http://YOUR_SERVER:PORT --token <string>`
