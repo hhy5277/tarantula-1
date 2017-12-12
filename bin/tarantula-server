@@ -24,9 +24,10 @@ program
   .option('--stop', "stop the server")
 
   .option('-p --port <port>', "listen port")
-  .option('--db_config <path>', "database config path")
+  .option('--db-config <path>', "database config path")
   .option('--config <path>', "tarantula config path")
   .parse(process.argv)
+
 
 const packageRoot = path.dirname(require.resolve("tarantulajs"))
 
@@ -54,7 +55,7 @@ async function initConfig(){
 
   const env = _.merge({}, process.env, {
     NODE_ENV: process.env.NODE_ENV || "production",
-    DB_CONFIG: program["db_config"] ? path.resolve(program["db_config"]) : null,
+    DB_CONFIG: program["dbConfig"] ? path.resolve(program["dbConfig"]) : null,
     TARANTULA_CONFIG: program["config"] ? path.resolve(program["config"]) : null,
   })
 

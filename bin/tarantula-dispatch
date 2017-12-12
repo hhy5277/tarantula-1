@@ -5,11 +5,14 @@
 const request = require('request-promise'),
             _ = require('lodash'),
         async = require('async'),
+         util = require('util'),
       program = require('commander'),
        moment = require('moment'),
        logger = require('log4js').getLogger(),
-{ execSync, execFileSync } = require('child_process'),
+{ execSync, spawnSync } = require('child_process'),
          zlib = require('zlib')
+     mapLimit = util.promisify(async.mapLimit),
+        retry = util.promisify(async.retry)
 
 
 const version = (() => {
@@ -22,12 +25,13 @@ const version = (() => {
 
   const TIME_SLEEP = 1000 * 60 * 10,
 OUTPUT_BUFFER_SIZE = 1024 * 1024 * 20,
-   PROCESS_TIMEOUT = 1000 * 60 * 2,
+   PROCESS_TIMEOUT = 1000 * 60 * 1,
        MAX_PROCESS = 5
 
 program
   .version(version)
   .option('--max-process <n>', "max process number", MAX_PROCESS, parseInt)
+  .option('--token <string>', "auth token")
   .option('-s --server <address>', "server address", "http://localhost:3000")
   .option('--debug', "debug mode", process.env.NODE_ENV != 'production')
   .parse(process.argv)
@@ -37,23 +41,32 @@ const DEBUG = !_.isEmpty(program.debug),
    ROOT_URL = program.server,
   TASK_PATH = `${ROOT_URL}/api/task`,
 RESULT_PATH = `${ROOT_URL}/api/result`,
-SCRIPT_PATH = `${ROOT_URL}/api/script`
+SCRIPT_PATH = `${ROOT_URL}/api/script`,
+      token = program.token
 
 const MESSAGE_ID_GOT_NOTHING = 0x01,
       MESSAGE_ID_SEND_FAILED = 0x02
 
 logger.level = "ALL"
 
-;function killProcessTree(){
+;function killProcessTree(topPid){
   if (DEBUG){
     return
   }
 
-  try{
-    execSync(`pgrep -P ${process.pid} -t "?"`).toString().match(/\d+/g).forEach((pid) => {
-      execSync(`kill ${pid}`)
-    })
-  }catch(e){}
+  const { stdout } = spawnSync('ps', ['-o', 'pid', '--no-headers', '--ppid', topPid || process.pid], {
+    env: process.env
+  })
+
+  _.chain(stdout.toString()).split("\n").forEach((n) => {
+    const pid = n.trim()
+    if (pid.length == 0){
+      return
+    }
+
+    killProcessTree(pid)
+    try{ process.kill(Number(pid), 'SIGKILL') }catch(e){}
+  }).value()
 }
 
 ;function clean(){
@@ -73,6 +86,14 @@ logger.level = "ALL"
   ]
 
   _.each(commands, (n) => execSync(n))
+
+  killProcessTree()
+}
+
+;function parseJson(v){
+  try{
+    return JSON.parse(v)
+  }catch(e){}
 }
 
 let scriptCode = [
@@ -96,6 +117,7 @@ logger.info(`debug mode: ${DEBUG}`)
   Promise.resolve().then(async () => {
     return await request({
       url: TASK_PATH,
+      qs: {token},
       json: true,
     })
   }).then(async (r) => {
@@ -122,7 +144,7 @@ logger.info(`debug mode: ${DEBUG}`)
       const itemsCode = await request({
         method: 'post',
         url: `${SCRIPT_PATH}/get_code`,
-        json: {items},
+        json: {token, items},
       })
 
       _.each(itemsCode || [], (n) => {
@@ -144,86 +166,78 @@ logger.info(`debug mode: ${DEBUG}`)
       }
     }
 
-    return new Promise((resolve, reject) => {
-      async.mapLimit(tasks, program.maxProcess, async (task) => {
-        let ctx
-        try{ ctx = JSON.parse(task.context) }catch(e){}
+    return mapLimit(tasks, program.maxProcess, async (task) => {
+      const ctx = parseJson(task.context)
 
-        const forceProxy = _.get(ctx, 'force_proxy')
-        const disableProxy = _.get(ctx, 'disable_proxy')
-        const processTimeout = _.get(ctx, 'wait_timeout', PROCESS_TIMEOUT)
+      const forceProxy = _.get(ctx, 'force_proxy')
+      const disableProxy = _.get(ctx, 'disable_proxy')
+      const processTimeout = _.get(ctx, 'wait_timeout', PROCESS_TIMEOUT)
 
-        const runCommand = `${__dirname}/tarantula-crawl`
-        const runParams = []
+      const runCommand = `${__dirname}/tarantula-crawl`
+      const runParams = []
 
-        if(task.url){
-          runParams.push('--url')
-          runParams.push(task.url)
+      if(task.url){
+        runParams.push('--url')
+        runParams.push(task.url)
+      }
+
+      if (task.context){
+        runParams.push('--context')
+        runParams.push(task.context)
+      }
+
+      const env = _.merge({}, process.env, ctx || {})
+      const proxy = _.chain(proxies).sample().value()
+
+      if ((Number(task.attempts) == 0 && !disableProxy && proxy) || (forceProxy && proxy)){
+        _.merge(env, {
+          http_proxy: `${proxy.proxy_type}://${proxy.ip}:${proxy.port}`,
+          https_proxy: `${proxy.proxy_type}://${proxy.ip}:${proxy.port}`,
+        })
+      }
+
+      try{
+        const s = _.find(scriptCode, (n) => n.md5 == task.md5)
+        const { stdout, stderr } = spawnSync(runCommand, runParams, {
+          env: env,
+          maxBuffer: OUTPUT_BUFFER_SIZE,
+          timeout: Number(processTimeout),
+          input: s.code,
+          //killSignal: 'SIGINT',     //SIGKILL
+        })
+
+        const taskResult = parseJson(stdout)
+        if (!taskResult){
+          throw stderr.toString()
         }
 
-        if (task.context){
-          runParams.push('--context')
-          runParams.push(task.context)
+        if (_.isEmpty(taskResult.result) && _.isEmpty(taskResult.tasks)){
+          throw {status: 500, message: "no result and tasks."}
         }
 
-        const env = _.merge({}, process.env, ctx || {})
-        const proxy = _.chain(proxies).sample().value()
+        return {
+          id: task.id,
+          result: taskResult.result,
+          tasks: _.chain(taskResult.tasks || []).map((n) => {
+            n.context = _.isObject(n.context) ? JSON.stringify(n.context) : n.context
 
-        if ((Number(task.attempts) == 0 && !disableProxy && proxy) || (forceProxy && proxy)){
-          _.merge(env, {
-            http_proxy: `${proxy.proxy_type}://${proxy.ip}:${proxy.port}`,
-            https_proxy: `${proxy.proxy_type}://${proxy.ip}:${proxy.port}`,
-          })
+            return n
+          }).value()
+        }
+      }catch(e){
+        if (task.attempts >= 3){
+          logger.error(`${runCommand} ${runParams} message: ${e}`)
+        }else{
+          logger.warn(`${runCommand} ${runParams} message: ${e}`)
         }
 
-        try{
-          const s = _.find(scriptCode, (n) => n.md5 == task.md5)
-          const stdout = await execFileSync(runCommand, runParams, {
-            env: env,
-            maxBuffer: OUTPUT_BUFFER_SIZE,
-            timeout: Number(processTimeout),
-            input: s.code,
-            //killSignal: 'SIGINT',     //SIGKILL
-          })
-
-          const taskResult = JSON.parse(stdout)
-
-          if (Number(taskResult.status) != 200){
-            throw taskResult.status
-          }
-
-          return {
-            id: task.id,
-            result: taskResult.result,
-            tasks: _.chain(taskResult.tasks || []).map((n) => {
-              n.context = _.isObject(n.context) ? JSON.stringify(n.context) : n.context
-
-              return n
-            }).value()
-          }
-        }catch(e){
-          if (task.attempts >= 3){
-            logger.error(`${runCommand} ${runParams} message: ${e}`)
-          }else{
-            logger.warn(`${runCommand} ${runParams} message: ${e}`)
-          }
-
-          return {
-            id: task.id,
-            message: e || "unknown error"
-          }
+        return {
+          id: task.id,
+          message: e || "unknown error"
         }
-      }, (err, result) => {
-        if (err){
-          return reject(err)
-        }
-
-        killProcessTree()
-
-        resolve(result)
-      })
+      }
     })
-  }).then((result) => {
+  }).then(async (result) => {
 
     if (DEBUG){
       logger.info(JSON.stringify(result, null, 2))
@@ -241,30 +255,27 @@ logger.info(`debug mode: ${DEBUG}`)
 
     logger.info(`send data to server. ${sendBuffer.length}`)
 
-    return new Promise((resolve, reject) => {
-      async.retry({
+    try {
+      await retry({
         times: 5,
-        interval: 1000,
+        interval: 1000 * 3,
       }, async () => {
         return await request({
           method: 'post',
           url: RESULT_PATH,
+          qs: {token},
           headers: headers,
           body: sendBuffer,
         })
-      }, (error, r) => {
-        if (error){
-          reject({
-            messageId: MESSAGE_ID_SEND_FAILED,
-            message: error,
-          })
-        }else{
-          resolve()
-        }
-
-        setTimeout(main, 0)
       })
-    })
+    } catch (e) {
+      throw {
+        messageId: MESSAGE_ID_SEND_FAILED,
+        message: e,
+      }
+    }
+
+    setTimeout(main, 0)
   }).catch((e) => {
     if (e.messageId == MESSAGE_ID_GOT_NOTHING){
       logger.info(`got nothing.`)
