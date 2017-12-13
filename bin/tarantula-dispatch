@@ -10,17 +10,21 @@ const request = require('request-promise'),
        moment = require('moment'),
        logger = require('log4js').getLogger(),
 { execSync, spawnSync } = require('child_process'),
-         zlib = require('zlib')
+         zlib = require('zlib'),
      mapLimit = util.promisify(async.mapLimit),
         retry = util.promisify(async.retry)
 
 
-const version = (() => {
-  try{
-   return require("tarantulajs/package.json").version
-  }catch(e){
-   return 'dev'
-  }
+const { version } = (() => {
+  try{ return require("tarantulajs/package.json") }catch(e){}
+
+  return 'dev'
+})()
+
+const { HTTP_STATUS_CODE } = (() => {
+  try{ return require("tarantulajs/utilities") }catch(e){}
+
+  return {}
 })()
 
   const TIME_SLEEP = 1000 * 60 * 10,
@@ -96,6 +100,10 @@ logger.level = "ALL"
   }catch(e){}
 }
 
+const filesMD5 = (() => {
+  try{ return require("tarantulajs/lib/app/utilities/script_md5")() }catch(e){}
+})()
+
 let scriptCode = [
   /*
   {
@@ -114,13 +122,11 @@ logger.info(`debug mode: ${DEBUG}`)
 
   clean()
 
-  Promise.resolve().then(async () => {
-    return await request({
-      url: TASK_PATH,
-      qs: {token},
-      json: true,
-    })
-  }).then(async (r) => {
+  Promise.resolve(request({
+    url: TASK_PATH,
+    qs: {token, filesMD5},
+    json: true,
+  })).then(async (r) => {
     return await _.chain(r).get("tasks", []).map((n) => {
       return {
         scriptName: n.scriptName,
@@ -161,9 +167,7 @@ logger.info(`debug mode: ${DEBUG}`)
     .value()
   }).then(({proxies, tasks}) => {
     if (_.isNil(tasks) || _.isEmpty(tasks)){
-      throw {
-        messageId: MESSAGE_ID_GOT_NOTHING
-      }
+      throw { status: MESSAGE_ID_GOT_NOTHING }
     }
 
     return mapLimit(tasks, program.maxProcess, async (task) => {
@@ -212,7 +216,7 @@ logger.info(`debug mode: ${DEBUG}`)
         }
 
         if (_.isEmpty(taskResult.result) && _.isEmpty(taskResult.tasks)){
-          throw {status: 500, message: "no result and tasks."}
+          throw { message: "no result and tasks." }
         }
 
         return {
@@ -269,22 +273,22 @@ logger.info(`debug mode: ${DEBUG}`)
         })
       })
     } catch (e) {
-      throw {
-        messageId: MESSAGE_ID_SEND_FAILED,
-        message: e,
-      }
+      throw { status: MESSAGE_ID_SEND_FAILED, message: e }
     }
 
     setTimeout(main, 0)
   }).catch((e) => {
-    if (e.messageId == MESSAGE_ID_GOT_NOTHING){
+    if (_.get(e, "status") == MESSAGE_ID_GOT_NOTHING){
       logger.info(`got nothing.`)
-      setTimeout(main, TIME_SLEEP)
-    }else if (e.messageId == MESSAGE_ID_SEND_FAILED){
+    }else if (_.get(e, "status") == MESSAGE_ID_SEND_FAILED){
       logger.error(`send data failed.`)
-      setTimeout(main, TIME_SLEEP)
+    }else if (_.get(e, "statusCode") == HTTP_STATUS_CODE.NEED_RESET_CLIENT){
+      logger.warn("reset client.")
+      return process.exit()
     }else{
       logger.error(e)
     }
+
+    setTimeout(main, TIME_SLEEP)
   })
 })()
