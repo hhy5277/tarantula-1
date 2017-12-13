@@ -41,6 +41,10 @@ Tarantula是一个分布式爬虫框架。由中心服务器和节点服务器�
 #### 客户端
 `tarantula dispatch -s http://YOUR_SERVER:PORT --token <string>`
 
+#### 客户端docker部署
+`docker build -t tarantula-dispatch -f https://raw.githubusercontent.com/hummer-studio/tarantula/master/Dockerfile.dispatch . --build-arg server=http://YOUR_SERVER:PORT --build-arg token=YOUR_TOKEN`  
+`docker run --restart=always tarantula-dispatch`
+
 #### 发布代码到私有服务器
 `tarantula publish -s [https://]YOUR_SERVER[:PORT] --name YOUR_PROJECT_NAME --description YOUR_DESCRIPTION --target YOUR_PROJECT_DIRECTORY`
 
