@@ -13,7 +13,7 @@ const program = require('commander'),
 
 const version = (() => {
   try{
-    return require("tarantula/package.json").version
+    return require("tarantulajs/package.json").version
   }catch(e){
     return 'dev'
   }

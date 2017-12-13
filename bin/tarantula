@@ -9,7 +9,7 @@ const program = require('commander'),
 
 const version = (() => {
   try{
-   return require("tarantula/package.json").version
+   return require("tarantulajs/package.json").version
   }catch(e){
    return 'dev'
   }
@@ -19,6 +19,6 @@ program
   .version(version)
   .command("server", "start a server")
   .command("dispatch <server>", "tarantula client")
-  .command("dev", "for developer")    
+  .command("dev", "for developer")
   .command("publish", "publish project")
   .parse(process.argv)
