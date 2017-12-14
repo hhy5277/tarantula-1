@@ -9,6 +9,7 @@
     "ip_white_list": [],
     "fetch_max_task_count": 100,
     "storage_path": "",
+    "error_storage_path": "",
     "auto_clean_expired_tasks": false,
     "path_prefix": "",
     "secret": "",
