@@ -10,7 +10,7 @@ Tarantula是一个分布式爬虫框架。由中心服务器和节点服务器�
 - Visual Studio >= 2012 (windows only)
 
 ## 安装
-`npm i -g tarantulajs`
+`npm i -g tarantulajs --unsafe-perm`
 
 ## 创建工程
 `tarantula dev --create YOUR_PROJECT_NAME`
