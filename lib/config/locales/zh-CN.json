@@ -35,6 +35,9 @@
 			"deleteFaield": "删除项目失败"
 		}
 	},
+	"message":{
+		"emptyHint": "目前没有任何日志信息，请稍后查看。"
+	},
 	"feedback": {
 		"email": "电子邮箱",
 		"emailHint": "请输入有效的电子邮件地址！",
