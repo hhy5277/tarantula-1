@@ -2,7 +2,8 @@
 	"menu": {
 		"dashboard": "项目列表",
 		"feedback": "问题反馈",
-		"checkUpdate": "查看新版"
+		"checkUpdate": "查看新版",
+		"message": "日志信息"
 	},
 	"dashboard": {
 		"btnPlay": "立即执行",
@@ -29,7 +30,9 @@
 			"startFailed": "项目启动失败",
 
 			"resetSucceed": "失败任务重置成功",
-			"resetFailed": "失败任务重置失败"
+			"resetFailed": "失败任务重置失败",
+
+			"deleteFaield": "删除项目失败"
 		}
 	},
 	"feedback": {
