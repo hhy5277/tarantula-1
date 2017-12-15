@@ -7,3 +7,5 @@
 
 config/database.json
 config/tarantula-config.json
+
+lib/views/layout/vue.ejs

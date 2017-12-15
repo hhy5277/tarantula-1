@@ -1,8 +1,6 @@
 {
   "ignore": [
-    "vue/*",
-    "node_modules/*",
-    "lib/assets/scripts/*",
-    "lib/assets/styles/*"
+    "lib/frontend/**/*",
+    "node_modules/**/*"
   ]
 }

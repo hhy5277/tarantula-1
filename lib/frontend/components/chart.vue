@@ -1,10 +1,10 @@
+<template>
+  <div class="highcharts">
+  </div>
+</template>
 
-const Chart = {
-  template: `
-    <div class="highcharts">
-    </div>
-  `,
-
+<script>
+export default {
   props: ['options', 'Highcharts'],
 
   data () {
@@ -75,3 +75,4 @@ const Chart = {
     }
   }
 }
+</script>
