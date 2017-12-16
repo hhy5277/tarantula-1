@@ -1,6 +1,6 @@
 {
   "ignore": [
-    "lib/frontend/**/*",
+    "lib/assets/**/*",
     "node_modules/**/*"
   ]
 }

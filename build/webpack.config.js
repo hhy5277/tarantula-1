@@ -9,7 +9,7 @@ HtmlWebpackIncludeAssetsPlugin = require('html-webpack-include-assets-plugin'),
 ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin')
 
 const isProduction = process.env.NODE_ENV == 'production'
-const ROOT_PATH = `${__dirname}/../lib/frontend`
+const ROOT_PATH = `${__dirname}/../lib/assets/frontend`
 const OUTPUT_PATH = `${__dirname}/../lib/public`
 
 const config = {

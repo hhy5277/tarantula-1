@@ -12,7 +12,7 @@
         <!--
         <img :src='require("../../assets/images/tarantula.svg")' />
       -->
-        <div v-html='require("../../assets/images/tarantula.svg")' />
+        <div v-html='require("../../images/tarantula.svg")' />
       </span>
 
       <!--
