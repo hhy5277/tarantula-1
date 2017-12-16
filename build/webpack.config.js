@@ -184,8 +184,12 @@ config.plugins = config.plugins.concat([
     }).value())
   }),
   new ScriptExtHtmlWebpackPlugin({
-    defer: ['buttons.js'],
-    async: ['buttons.js'],
+    custom: [
+      {
+        test: /buttons.js/,
+        attribute: ['defer async']
+      },
+    ]
   }),
   new HtmlReplaceWebpackPlugin([
     {
