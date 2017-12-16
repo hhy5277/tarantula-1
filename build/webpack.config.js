@@ -6,11 +6,22 @@ ExtractTextPlugin = require('extract-text-webpack-plugin'),
 HtmlWebpackPlugin = require('html-webpack-plugin'),
 HtmlReplaceWebpackPlugin = require('html-replace-webpack-plugin'),
 HtmlWebpackIncludeAssetsPlugin = require('html-webpack-include-assets-plugin'),
-ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin')
+ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin'),
+ HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin')
 
 const isProduction = process.env.NODE_ENV == 'production'
 const ROOT_PATH = `${__dirname}/../lib/assets/frontend`
 const OUTPUT_PATH = `${__dirname}/../lib/public`
+
+const devPort = (function randomPort(){
+  const n = parseInt(Math.random() * 10000)
+
+  if (n > 1024){
+    return n
+  }
+
+  return randomPort()
+})()
 
 const config = {
   entry: [`${ROOT_PATH}/index.vue`],
@@ -88,14 +99,14 @@ const config = {
   },
 
   devServer: {
+    port: devPort,
     historyApiFallback: true,
     noInfo: true,
     headers: { "Access-Control-Allow-Origin": "*" }
   },
 
   plugins: [],
-  //devtool: isProduction ? "source-map" : ""
-  // devtool: "eval-source-map",
+  devtool: isProduction ? "cheap-module-source-map" : "cheap-module-eval-source-map"
 }
 
 if (isProduction){
@@ -119,7 +130,7 @@ if (isProduction){
   config.plugins.push(new webpack.optimize.OccurrenceOrderPlugin())
 }else{
   config.output.filename = 'javascripts/bundle.js'
-  config.output.publicPath = "http://localhost:8080/static/dist/"
+  config.output.publicPath = `http://localhost:${devPort}/static/dist/`
 
   config.plugins.push(new webpack.DefinePlugin({
     'process.env.NODE_ENV': '"development"',
@@ -147,6 +158,7 @@ const assets = [
 
 config.plugins = config.plugins.concat([
   new HtmlWebpackPlugin({
+    alwaysWriteToDisk: true,
     filename: '../views/layout/vue.ejs',
     // filename: '../../views/layout/vue.ejs',
     template: './lib/views/template/vue.html',
@@ -159,6 +171,7 @@ config.plugins = config.plugins.concat([
     // },
     // chunksSortMode: 'dependency'
   }),
+  new HtmlWebpackHarddiskPlugin(),
   new HtmlWebpackIncludeAssetsPlugin({
     append: false,
     publicPath: "",
@@ -187,7 +200,6 @@ config.plugins = config.plugins.concat([
   ])
 ])
 
-// config.plugins.push(new HtmlWebpackPlugin({hash: true}))
 // config.plugins.push(function() {
 //   this.plugin("done", function(stats) {
 //     console.log(stats.hash)
