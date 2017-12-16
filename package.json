@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node lib/app.js",
     "dev": "webpack-dev-server --config build/webpack.config.js --hot --progress --profile --colors --inline --history-api-fallback",
-    "build": "gulp js && gulp sprite && gulp sass",
+    "build": "webpack --config build/webpack.config.js",
     "test": "mocha --recursive",
     "debug": "node --debug --inspect lib/app.js",
     "deploy": "sequelize db:migrate && pm2 start pm2.json --no-daemon"
