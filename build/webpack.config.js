@@ -105,16 +105,16 @@ const config = {
     headers: { "Access-Control-Allow-Origin": "*" }
   },
 
-  plugins: [],
+  plugins: [new webpack.DefinePlugin({
+    isProduction: JSON.stringify(isProduction),
+    'process.env.NODE_ENV': `'${process.env.NODE_ENV || "development"}'`,
+  })],
   devtool: isProduction ? "cheap-module-source-map" : "cheap-module-eval-source-map"
 }
 
+
 if (isProduction){
   config.output.filename = 'javascripts/bundle-[chunkhash].js'
-
-  config.plugins.push(new webpack.DefinePlugin({
-    'process.env.NODE_ENV': '"production"',
-  }))
 
   config.plugins.push(new webpack.optimize.UglifyJsPlugin({
       compress: {
@@ -131,10 +131,6 @@ if (isProduction){
 }else{
   config.output.filename = 'javascripts/bundle.js'
   config.output.publicPath = `http://localhost:${devPort}/static/dist/`
-
-  config.plugins.push(new webpack.DefinePlugin({
-    'process.env.NODE_ENV': '"development"',
-  }))
 }
 
 
