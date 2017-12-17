@@ -156,9 +156,7 @@ config.plugins = config.plugins.concat([
   new HtmlWebpackPlugin({
     alwaysWriteToDisk: true,
     filename: '../views/layout/vue.ejs',
-    // filename: '../../views/layout/vue.ejs',
-    template: './lib/views/template/vue.html',
-    inject: true,
+    template: './lib/views/template/default.html',
     // hash: true,
     // minify: {
     //     removeComments: true,
@@ -199,15 +197,5 @@ config.plugins = config.plugins.concat([
     }
   ])
 ])
-
-// config.plugins.push(function() {
-//   this.plugin("done", function(stats) {
-//     console.log(stats.hash)
-//     // require("fs").writeFileSync(
-//     //   path.join(__dirname, "...", "stats.json"),
-//     //   JSON.stringify(stats.toJson()));
-//   });
-// })
-
 
 module.exports = config
