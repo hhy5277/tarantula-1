@@ -4,6 +4,7 @@
     clipped
     app
     width="200"
+    mobile-break-point="false"
   >
     <v-list dense>
       <template v-for="(item, i) in items">
