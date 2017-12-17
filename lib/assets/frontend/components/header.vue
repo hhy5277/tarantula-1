@@ -1,3 +1,17 @@
+<style lang="scss" scoped>
+.logo{
+  margin-top: 10px;
+}
+</style>
+
+<style lang="scss">
+.logo{
+  svg{
+    height: 35px;
+  }
+}
+</style>
+
 <template>
   <v-toolbar
     color="grey darken-3"
@@ -8,11 +22,7 @@
   >
     <v-toolbar-title :style="$vuetify.breakpoint.smAndUp ? 'width: 300px; min-width: 250px' : 'min-width: 72px'" class="ml-0 pl-3">
       <span>
-        <div class='svg-tarantula svg-tarantula-dims' style="margin-left: 0px"></div>
-        <!--
-        <img :src='require("../../assets/images/tarantula.svg")' />
-      -->
-        <div v-html='require("../../images/tarantula.svg")' />
+        <div class='logo' v-html='require("../../images/tarantula.svg")'></div>
       </span>
 
       <!--
@@ -34,8 +44,6 @@
 </template>
 
 <script>
-// import logo from "../../assets/images/tarantula.svg"
-
 export default {
   data: () => ({
   }),
