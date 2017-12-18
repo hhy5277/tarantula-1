@@ -157,13 +157,11 @@ config.plugins = config.plugins.concat([
     alwaysWriteToDisk: true,
     filename: '../views/layout/vue.ejs',
     template: './lib/views/template/default.html',
-    // hash: true,
-    // minify: {
-    //     removeComments: true,
-    //     collapseWhitespace: true,
-    //     removeAttributeQuotes: true
-    // },
-    // chunksSortMode: 'dependency'
+    minify: isProduction ? {
+        removeComments: true,
+        collapseWhitespace: true,
+        removeAttributeQuotes: true
+    } : {},
   }),
   new HtmlWebpackHarddiskPlugin(),
   new HtmlWebpackIncludeAssetsPlugin({
