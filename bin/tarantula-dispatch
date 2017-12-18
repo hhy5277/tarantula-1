@@ -5,6 +5,7 @@
 const request = require('request-promise'),
             _ = require('lodash'),
         async = require('async'),
+          dns = require("dns"),
          util = require('util'),
       program = require('commander'),
        moment = require('moment'),
@@ -12,7 +13,8 @@ const request = require('request-promise'),
 { execSync, spawnSync } = require('child_process'),
          zlib = require('zlib'),
      mapLimit = util.promisify(async.mapLimit),
-        retry = util.promisify(async.retry)
+        retry = util.promisify(async.retry),
+   resolveTxt = util.promisify(dns.resolveTxt)
 
 
 const { version } = (() => {
@@ -36,16 +38,13 @@ program
   .version(version)
   .option('--max-process <n>', "max process number", MAX_PROCESS, parseInt)
   .option('--token <string>', "auth token")
-  .option('-s --server <address>', "server address", "http://localhost:3000")
-  .option('--debug', "debug mode", process.env.NODE_ENV != 'production')
+  .option('-s --server <address>', "server address")
+  .option('-d --domain <domain>', "domain name")
+  .option('--debug', "debug mode")
   .parse(process.argv)
 
 
-const DEBUG = !_.isEmpty(program.debug),
-   ROOT_URL = program.server,
-  TASK_PATH = `${ROOT_URL}/api/task`,
-RESULT_PATH = `${ROOT_URL}/api/result`,
-SCRIPT_PATH = `${ROOT_URL}/api/script`,
+const DEBUG = program.debug || process.env.NODE_ENV != 'production',
       token = program.token
 
 const MESSAGE_ID_GOT_NOTHING = 0x01,
@@ -122,6 +121,26 @@ logger.info(`debug mode: ${DEBUG}`)
 
   clean()
 
+  const ROOT_URL = await (async () => {
+    if (DEBUG){
+      return "http://localhost:3000"
+    }
+
+    if (program.server){
+      return program.server
+    }
+
+    try{
+      const r = await resolveTxt(program.domain)
+
+      return _.first(_.first(r))
+    }catch(e){}
+  })()
+
+  const TASK_PATH = `${ROOT_URL}/api/task`,
+      RESULT_PATH = `${ROOT_URL}/api/result`,
+      SCRIPT_PATH = `${ROOT_URL}/api/script`
+  
   Promise.resolve(request({
     url: TASK_PATH,
     qs: {token, filesMD5},
