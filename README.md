@@ -55,6 +55,9 @@ Tarantula是一个分布式爬虫框架。由中心服务器和节点服务器�
 - [源码解析](examples/crawl_no_javascript.js)
 - [点击事件通过jquery解析](examples/crawl_with_javascript.js)
 
+## 爬虫脚本配置解析  
+[爬虫脚本配置解析](../../wiki/%E7%88%AC%E8%99%AB%E8%84%9A%E6%9C%AC%E9%85%8D%E7%BD%AE%E8%AF%A6%E8%A7%A3)
+
 ## 常见问题
 #### 全局模式安装失败
 可以尝试普通安装模式
