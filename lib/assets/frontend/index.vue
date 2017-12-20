@@ -1,5 +1,7 @@
 <script>
 
+import "./components/i18n"
+
 import Feedback from './components/feedback'
 import Message from './components/message'
 import Dashboard from './components/dashboard'
@@ -47,8 +49,6 @@ new Vue({
     "t-nofity": Nofity,
   },
 
-  i18n: new VueI18n({locale: "default", messages: {default: i18n}}),
-
   template: `
     <v-app id="inspire">
       <t-menu></t-menu>
@@ -61,8 +61,8 @@ new Vue({
     </v-app>
   `,
 
-  router: router,
-  store: store,
+  router,
+  store,
 
   data: () => ({
   }),

@@ -145,7 +145,6 @@ const assets = [
   '//cdn.jsdelivr.net/npm/vue-resource@1.3.4/dist/vue-resource.min.js',
   '//cdn.jsdelivr.net/npm/vuex@3.0.1/dist/vuex.min.js',
   '//cdn.jsdelivr.net/npm/vue-meta@1.4.0/lib/vue-meta.min.js',
-  '//cdn.jsdelivr.net/npm/vue-i18n@7.3.2/dist/vue-i18n.min.js',
   '//cdn.jsdelivr.net/npm/vue-markdown@2.2.4/dist/vue-markdown.min.js',
   '//cdn.jsdelivr.net/npm/highcharts@6.0.3/highcharts.min.js',
   '//cdn.jsdelivr.net/npm/vuetify@0.17.2/dist/vuetify.min.js',
