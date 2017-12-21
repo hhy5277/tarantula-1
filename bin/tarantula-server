@@ -36,16 +36,21 @@ async function initConfig(){
   const configPath = `${packageRoot}/config/tarantula-config.json.sample`
 
   const randomStr = require(`${packageRoot}/lib/utilities/random_str`)
+  const token = randomStr(32)
 
   fs.copyFileSync(dbPath, 'database.json')
   fs.writeFileSync('tarantula-config.json', _.chain(JSON.parse(fs.readFileSync(configPath))).thru((n) => {
     return _.merge(n, {
       default: {
         secret: randomStr(16),
-        token: randomStr(32),
+        token: token,
       }
     })
   }).thru((n) => JSON.stringify(n, null, 2)).value())
+
+  console.log(`
+    please save your token string: ${token}
+  `)
 }
 
 ;(async () => {
