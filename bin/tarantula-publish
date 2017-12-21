@@ -25,19 +25,19 @@ program
   .option('-d --description <description>', "project description")
   .option('-s --server <serverAddress>', "server address. ex: http://", "http://tarantula.tech")
   .option('--overwrite', "overwrite the project.")
-  .option('--hours <n>', "every N hours to start.")
+  .option('--hours <n>', "every <N> hours to start.")
   .option("--target <file or directory>", "file or directory")
+  .option("--token <string>", "token string")
   .parse(process.argv)
 
 
 function publishProject(params){
-  return Promise.resolve().then(async () => {
-    const r = await request({
-      method: 'post',
-      url: `${program.server}/api/project`,
-      json: true,
-      body: params
-    })
+  return Promise.resolve(request({
+    method: 'post',
+    url: `${program.server}/api/project`,
+    json: true,
+    body: params
+  })).then((r) => {
 
     debug(r)
 
@@ -47,23 +47,24 @@ function publishProject(params){
       console.log(chalk.red(r.message))
     }
   }).catch(async (e) => {
-    if (e.statusCode == 401){
-
-      debug("not found token info.")
-
-      const q = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-      })
-
-      const token = await new Promise((resolve, reject) => {
-        q.question("please input token(http://tarantula.tech/token): ", resolve)
-      })
-
-      return publishProject(_.merge({}, params, {token}))
+    throw e
+    
+    if (e.statusCode != 401){
+      throw e
     }
 
-    throw e
+    debug("not found token info.")
+
+    const q = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    })
+
+    const token = await new Promise((resolve, reject) => {
+      q.question("please input token(https://tarantula.tech/dashboard#token): ", resolve)
+    })
+
+    return publishProject(_.merge({}, params, {token}))
   })
 }
 
@@ -113,6 +114,18 @@ function publishProject(params){
 
     if (_.isEmpty(program.description)){
       throw {message: "not found description param."}
+    }
+
+    if (_.isEmpty(program.token)){
+      if (/tarantula.tech/.test(program.server)){
+        throw {
+          message: `
+            not found token param. please visit https://tarantula.tech/dashboard#token
+          `
+        }
+      }else{
+        throw {message: "not found token param."}
+      }
     }
 
     return publishProject(_.merge({
