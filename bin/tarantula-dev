@@ -27,6 +27,8 @@ program
 const template = `
 'use strict';
 
+//https://github.com/hummer-studio/tarantula/wiki/%E7%88%AC%E8%99%AB%E8%84%9A%E6%9C%AC%E9%85%8D%E7%BD%AE%E8%AF%A6%E8%A7%A3
+
 const config = {
   url: "https://www.baidu.com",                      //seed url
   //content: "{}",                                  //init context(JSON string)
@@ -86,7 +88,7 @@ module.exports = {
 
     if (r.result || r.tasks){
       t = new Date() * 1 - t
-      if (t >= 2000){
+      if (t >= 1000 * 60){
         console.log(chalk.yellow(`[${t} ms] test passed. but execution time is too long.`))
       }else{
         console.log(chalk.green(`[${t} ms] test passed.`))
