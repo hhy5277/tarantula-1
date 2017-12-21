@@ -35,6 +35,14 @@ function format(string) {
     })
 }
 
+Object.defineProperty(Vue.prototype, '$format', {
+  get(){
+    return function(){
+      return format.apply(this, arguments)
+    }
+  }
+})
+
 Object.defineProperty(Vue.prototype, '$t', {
   get () {
     return function(){
