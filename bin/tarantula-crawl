@@ -10,6 +10,7 @@ requireString = require('require-from-string'),
            ua = require('universal-analytics'),
            fs = require('fs'),
          path = require('path'),
+         uuid = require("../lib/utilities/uuid")(),
   { version } = require("../package.json")
 
 
@@ -76,33 +77,22 @@ const MOBILE_UAs = [
   "Mozilla/5.0 (Linux; Android 5.1.1; Nexus 6 Build/LYZ28E) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Mobile Safari/537.36"
 ]
 
-const uuid = (() => {
-  const fullPath = `${require('os').homedir()}/.tarantula.json`
-
-  try{
-    return require(fullPath).uuid
-  }catch(e){
-    const uuid = require('uuid/v4')()
-
-    fs.writeFileSync(fullPath, JSON.stringify({
-      uuid: uuid
-    }, null, 2), 'utf-8')
-
-    return uuid
-  }
-})()
-
 async function fetchByRequest(){
-  let r = await request({
-    url: url,
-    headers: {
-      "User-Agent": _.sample(UAs),
-      "Referer": _.get(external, "referer", ""),
-    },
-    encoding: null
-  })
 
-  r = await external.parser(r)
+  let r;
+
+  if (!_.isEmpty(url)){
+    r = await request({
+      url: url,
+      headers: {
+        "User-Agent": _.sample(UAs),
+        "Referer": _.get(external, "referer", ""),
+      },
+      encoding: null
+    })
+  }
+
+  r = await external.parser(r, context)
 
   console.log(JSON.stringify(r, null, 2))
 }
@@ -219,8 +209,7 @@ visitor.set("an", "tarantula")
 visitor.set("av", version)
 
 ;(async function() {
-
-  visitor.event("a", "crawler", url).send()
+  visitor.event("crawl", "fetch", url).send()
 
   if (external.config.javascriptEnabled){
     await fetchByPhantom()
