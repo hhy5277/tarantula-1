@@ -6,16 +6,8 @@ const program = require("commander"),
            fs = require("fs"),
          path = require("path"),
         chalk = require("chalk"),
+  { version } = require("../package.json")
 { spawnSync, spawn, execSync } = require('child_process')
-
-
-const version = (() => {
-  try{
-   return require("tarantulajs/package.json").version
-  }catch(e){
-   return 'dev'
-  }
-})()
 
 program
   .version(version)

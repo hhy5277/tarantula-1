@@ -9,15 +9,9 @@ const program = require('commander'),
             _ = require("lodash"),
       request = require("request-promise"),
      readline = require('readline'),
+  { version } = require("../package.json"),
         debug = require("debug")("publish:info")
 
-const version = (() => {
-  try{
-    return require("tarantulajs/package.json").version
-  }catch(e){
-    return 'dev'
-  }
-})()
 
 program
   .version(version)
@@ -48,7 +42,7 @@ function publishProject(params){
     }
   }).catch(async (e) => {
     throw e
-    
+
     if (e.statusCode != 401){
       throw e
     }

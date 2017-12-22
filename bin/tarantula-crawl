@@ -9,18 +9,11 @@ requireString = require('require-from-string'),
         async = require("async"),
            ua = require('universal-analytics'),
            fs = require('fs'),
-         path = require('path')
+         path = require('path'),
+  { version } = require("../package.json")
 
 
 global._ = require("lodash")
-
-const version = (() => {
-  try{
-   return require("tarantulajs/package.json").version
-  }catch(e){
-   return 'dev'
-  }
-})()
 
 const debug = {
   info: require("debug")("crawl:info"),

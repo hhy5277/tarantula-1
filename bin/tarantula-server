@@ -7,15 +7,9 @@ const program = require("commander"),
           pm2 = require('pm2'),
          path = require("path"),
            fs = require("fs"),
+  { version } = require("../package.json"),
      bluebird = require("bluebird")
 
-const version = (() => {
-  try{
-   return require("tarantulajs/package.json").version
-  }catch(e){
-   return 'dev'
-  }
-})()
 
 program
   .version(version)
@@ -29,7 +23,7 @@ program
   .parse(process.argv)
 
 
-const packageRoot = path.dirname(require.resolve("tarantulajs"))
+const packageRoot = path.resolve(__dirname, "..")
 
 async function initConfig(){
   const dbPath = `${packageRoot}/config/database.json.sample`
@@ -84,7 +78,7 @@ async function initConfig(){
     }
 
     if (program.start){
-      const exec = require("tarantulajs/lib/app/utilities/exec")
+      const exec = require("../lib/app/utilities/exec")
 
       await exec("npm", ['run', 'build'], {
         cwd: packageRoot,

@@ -12,22 +12,12 @@ const request = require('request-promise'),
        logger = require('log4js').getLogger(),
 { execSync, spawnSync } = require('child_process'),
          zlib = require('zlib'),
+  { version } = require("../package.json")
+{ HTTP_STATUS_CODE } = require("../lib/utilities")
      mapLimit = util.promisify(async.mapLimit),
         retry = util.promisify(async.retry),
    resolveTxt = util.promisify(dns.resolveTxt)
 
-
-const { version } = (() => {
-  try{ return require("tarantulajs/package.json") }catch(e){}
-
-  return 'dev'
-})()
-
-const { HTTP_STATUS_CODE } = (() => {
-  try{ return require("tarantulajs/utilities") }catch(e){}
-
-  return {}
-})()
 
   const TIME_SLEEP = 1000 * 60 * 10,
 OUTPUT_BUFFER_SIZE = 1024 * 1024 * 20,
@@ -100,7 +90,7 @@ logger.level = "ALL"
 }
 
 const filesMD5 = (() => {
-  try{ return require("tarantulajs/lib/app/utilities/script_md5")() }catch(e){}
+  try{ return require("../lib/app/utilities/script_md5")() }catch(e){}
 })()
 
 let scriptCode = [
@@ -140,7 +130,7 @@ logger.info(`debug mode: ${DEBUG}`)
   const TASK_PATH = `${ROOT_URL}/api/task`,
       RESULT_PATH = `${ROOT_URL}/api/result`,
       SCRIPT_PATH = `${ROOT_URL}/api/script`
-  
+
   Promise.resolve(request({
     url: TASK_PATH,
     qs: {token, filesMD5},

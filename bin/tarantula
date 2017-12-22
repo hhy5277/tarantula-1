@@ -3,17 +3,7 @@
 'ues strict'
 
 const program = require('commander'),
-        debug = {
-          info: require("debug")("info")
-        }
-
-const version = (() => {
-  try{
-   return require("tarantulajs/package.json").version
-  }catch(e){
-   return 'dev'
-  }
-})()
+  { version } = require("../package.json")
 
 program
   .version(version)
