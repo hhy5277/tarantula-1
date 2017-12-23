@@ -92,7 +92,6 @@ function publishProject(params){
       }
 
       return {
-        isSeed: require(n).config.url != null,
         name: path.parse(n).base,
         content: fs.readFileSync(n).toString()
       }
