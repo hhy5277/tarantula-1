@@ -14,6 +14,7 @@ const request = require('request-promise'),
          zlib = require('zlib'),
   { version } = require("../package.json"),
 { HTTP_STATUS_CODE } = require("../lib/utilities"),
+     filesMD5 = require("../lib/app/utilities/script_md5")(),
      mapLimit = util.promisify(async.mapLimit),
         retry = util.promisify(async.retry),
    resolveTxt = util.promisify(dns.resolveTxt)
@@ -89,10 +90,6 @@ logger.level = "ALL"
   }catch(e){}
 }
 
-const filesMD5 = (() => {
-  try{ return require("../lib/app/utilities/script_md5")() }catch(e){}
-})()
-
 let scriptCode = [
   /*
   {
@@ -116,7 +113,7 @@ logger.info(`debug mode: ${DEBUG}`)
       return "http://localhost:3000"
     }
 
-    if (program.server){
+    if (!_.isEmpty(program.server)){
       return program.server
     }
 
