@@ -28,7 +28,7 @@ const config = {
 
   output: {
     path: OUTPUT_PATH,
-    publicPath: "./"
+    publicPath: "/"
   },
 
   module: {
