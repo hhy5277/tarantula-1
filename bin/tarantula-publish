@@ -128,6 +128,7 @@ function publishProject(params){
       "name",
       "description",
       "hours",
+      "token"
     ]), {files}))
   }).catch((e) => {
     if (e.message){
