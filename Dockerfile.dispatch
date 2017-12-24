@@ -16,6 +16,4 @@ ADD http://mirrors.163.com/.help/sources.list.jessie /etc/apt/sources.list
 
 RUN npm i tarantulajs -g --unsafe-perm
 
-USER node
-
-ENTRYPOINT npm i tarantulajs@latest -g --unsafe-perm && tarantula dispatch -s ${TARANTULA_SERVER:-""} -d ${TARANTULA_DOMAIN:-""} --max-process ${TARANTULA_MAX_PROCESS:-5} --token ${TARANTULA_TOKEN}
+ENTRYPOINT npm i tarantulajs@latest -g --unsafe-perm && su node -c "tarantula dispatch -s ${TARANTULA_SERVER:-""} -d ${TARANTULA_DOMAIN:-""} --max-process ${TARANTULA_MAX_PROCESS:-5} --token ${TARANTULA_TOKEN}"
