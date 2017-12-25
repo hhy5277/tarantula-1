@@ -1,6 +1,6 @@
 {
   "name": "tarantulajs",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "main": "app.js",
   "scripts": {
     "start": "node lib/app.js",
