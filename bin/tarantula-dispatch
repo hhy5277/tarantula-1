@@ -113,7 +113,7 @@ logger.info(`debug mode: ${DEBUG}`)
       return "http://localhost:3000"
     }
 
-    if (!_.isEmpty(program.server)){
+    if (!_.isEmpty(program.server || "")){
       return program.server
     }
 
