@@ -4,7 +4,7 @@
     <v-layout row>
       <v-flex xs12 sm10 offset-sm1>
         <v-card class='elevation-1' flat>
-          <v-form v-model="valid" ref="form" lazy-validation>
+          <v-form v-model="valid" ref="form"> <!-- lazy-validation -->
             <v-container grid-list-md>
               <v-layout row wrap>
                 <v-flex xs12>
@@ -76,7 +76,7 @@ export default {
       postFeedback({email: this.email, content: this.content}).then((r) => {
         this.$refs.form.reset()
       }).catch(() => {
-        this.valid = ture
+        this.valid = true
       })
     }
   },
