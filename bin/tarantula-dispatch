@@ -118,7 +118,7 @@ logger.info(`debug mode: ${DEBUG}`)
     }
 
     try{
-      const r = await resolveTxt(program.domain)
+      const r = await resolveTxt(program.domainRecord)
 
       return _.first(_.first(r))
     }catch(e){}
