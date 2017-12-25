@@ -30,7 +30,7 @@ program
   .option('--max-process <n>', "max process number", MAX_PROCESS, parseInt)
   .option('--token <string>', "auth token")
   .option('-s --server <address>', "server address")
-  .option('-d --domain <domain>', "domain name")
+  .option('-d --domain-record <domain>', "domain name")
   .option('--debug', "debug mode")
   .parse(process.argv)
 
