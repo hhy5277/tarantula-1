@@ -43,6 +43,7 @@ export default {
     items: [
       { icon: 'dashboard', text: "menu.dashboard", route: "dashboard" },
       { icon: 'track_changes', text: "menu.message", route: "message" },
+      { icon: 'fa-cogs', text: "menu.nodes", route: "node" },
       { text: '-' },
       { icon: 'feedback', text: 'menu.feedback', route: "feedback" },
     ]

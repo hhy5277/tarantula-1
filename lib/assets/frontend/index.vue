@@ -5,6 +5,7 @@ import "./components/i18n"
 import Feedback from './components/feedback'
 import Message from './components/message'
 import Dashboard from './components/dashboard'
+import Node from './components/node'
 import ProjectStats from './components/projectStats'
 import ProjectTable from './components/projectTable'
 
@@ -26,6 +27,7 @@ const router = new VueRouter({
     { path: '/feedback', name: 'feedback', component: Feedback },
     { path: '/message', name: 'message', component: Message },
     { path: '/dashboard', name: 'dashboard', component: Dashboard },
+    { path: '/node', name: 'node', component: Node },
     { path: '/project/:id/stats', name: 'projectStats', component: ProjectStats },
     { path: '/project/:id/table', name: 'projectTable', component: ProjectTable },
   ],

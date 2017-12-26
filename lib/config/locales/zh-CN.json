@@ -3,7 +3,8 @@
 		"dashboard": "项目列表",
 		"feedback": "问题反馈",
 		"checkUpdate": "查看新版",
-		"message": "日志信息"
+		"message": "日志信息",
+		"nodes": "节点信息"
 	},
 	"dashboard": {
 		"btnPlay": "立即执行",
@@ -49,6 +50,28 @@
 	"table": {
 		"title": "数据采样"
 	},
+
+	"nodes": {
+		"tableColumn": [
+			{
+				"key": "ip",
+				"text": "节点地址"
+			},
+			{
+				"key": "succeed",
+				"text": "成功任务数"
+			},
+			{
+				"key": "failed",
+				"text": "失败任务数"
+			},
+			{
+				"key": "updatedAt",
+				"text": "最后一次更新时间"
+			}
+		]
+	},
+
 	"string": {
 		"confirm": "确认",
 		"cancel": "取消",

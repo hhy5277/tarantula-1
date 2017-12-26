@@ -10,7 +10,7 @@
         >
 
         <template slot="items" slot-scope="props">
-          <td class="text-xs-left" v-for="n in columns">{{ props.item[n] }}</td>
+          <td :class="i == 0 ? 'text-xs-left' : 'text-xs-right'" v-for="(n, i) in columns">{{ props.item[n] }}</td>
         </template>
 
       </v-data-table>
