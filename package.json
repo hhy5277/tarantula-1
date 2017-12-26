@@ -8,7 +8,8 @@
     "build": "webpack --config build/webpack.config.js",
     "test": "mocha --recursive",
     "debug": "node --debug --inspect lib/app.js",
-    "deploy": "sequelize db:migrate && pm2 start pm2.json --no-daemon"
+    "predeploy": "sequelize db:migrate",
+    "deploy": "pm2 start pm2.json --no-daemon"
   },
   "author": "tean <tean@tarantula.tech>",
   "license": "GPL",
