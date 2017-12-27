@@ -1,7 +1,9 @@
 <template>
-  <div>
-    <t-table :headers="headers" :items="items" v-if="items"></t-table>
-  </div>
+  <v-content>
+    <v-container>
+      <t-table :headers="headers" :items="items" v-if="items"></t-table>
+    </v-container>
+  </v-content>
 </template>
 
 <script>

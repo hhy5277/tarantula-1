@@ -132,8 +132,6 @@ export default {
         _.each(n.control, (m) => {
           if (m.key == 'play'){
             m.click = this.clickProjectPlay
-          }else if (m.key == 'table'){
-            m.click = this.clickProjectTable
           }else if (m.key == 'chart'){
             m.click = this.clickProjectStats
           }else if (m.key == 'reset'){
@@ -192,10 +190,6 @@ export default {
 
     clickProjectStats: function(v){
       this.$router.push({name: 'projectStats', params: {id: v.id}})
-    },
-
-    clickProjectTable: function(v){
-      this.$router.push({name: 'projectTable', params: {id: v.id}})
     },
   },
 }

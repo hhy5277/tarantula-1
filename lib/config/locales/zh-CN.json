@@ -4,13 +4,13 @@
 		"feedback": "问题反馈",
 		"checkUpdate": "查看新版",
 		"message": "日志信息",
-		"nodes": "节点信息"
+		"nodes": "节点信息",
+		"download": "数据仓库"
 	},
 	"dashboard": {
 		"btnPlay": "立即执行",
 		"btnStats": "项目统计",
 		"btnDelete": "删除项目",
-		"btnTable": "查看数据",
 		"btnReset": "重置失败任务",
 		"btnCron": "定时任务",
 		"deleteDialog": {
@@ -49,6 +49,16 @@
 	},
 	"table": {
 		"title": "数据采样"
+	},
+	"download": {
+		"filter": {
+			"selectProject": "选择项目",
+			"selectScript": "选择脚本",
+			"startDay": "起始日期",
+			"endDay": "结束日期",
+			"preview": "预览",
+			"download": "下载"
+		}
 	},
 
 	"nodes": {

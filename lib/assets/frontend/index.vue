@@ -7,7 +7,7 @@ import Message from './components/message'
 import Dashboard from './components/dashboard'
 import Node from './components/node'
 import ProjectStats from './components/projectStats'
-import ProjectTable from './components/projectTable'
+import Download from './components/download'
 
 import Menu from "./components/menu"
 import Header from "./components/header"
@@ -28,8 +28,8 @@ const router = new VueRouter({
     { path: '/message', name: 'message', component: Message },
     { path: '/dashboard', name: 'dashboard', component: Dashboard },
     { path: '/node', name: 'node', component: Node },
+    { path: '/download', name: 'download', component: Download },
     { path: '/project/:id/stats', name: 'projectStats', component: ProjectStats },
-    { path: '/project/:id/table', name: 'projectTable', component: ProjectTable },
   ],
 })
 

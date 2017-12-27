@@ -3,7 +3,7 @@
   "version": "0.1.11",
   "main": "app.js",
   "scripts": {
-    "start": "node lib/app.js",
+    "start": "nodemon lib/app.js",
     "dev": "webpack-dev-server --config build/webpack.config.js --hot --progress --colors --inline --history-api-fallback",
     "build": "webpack --config build/webpack.config.js",
     "test": "mocha --recursive",
@@ -66,6 +66,7 @@
     "koa-static-cache": "^5.1.1",
     "koa-validation": "^0.1.9",
     "lodash": "^4.15.0",
+    "merge2": "^1.2.0",
     "moment": "^2.19.2",
     "mysql2": "^1.4.2",
     "node-sass": "^3.13.1",

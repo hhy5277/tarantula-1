@@ -1,22 +1,15 @@
 <template>
-  <div>
-    <v-content>
-      <v-container>
-        <v-data-table
-          v-bind:headers="headers"
-          :items="items"
-          hide-actions
-          class="elevation-1"
-        >
+  <v-data-table
+    v-bind:headers="headers"
+    :items="items"
+    hide-actions
+    class="elevation-1"
+  >
+    <template slot="items" slot-scope="props">
+      <td :class="i == 0 ? 'text-xs-left' : 'text-xs-right'" v-for="(n, i) in columns">{{ props.item[n] }}</td>
+    </template>
 
-        <template slot="items" slot-scope="props">
-          <td :class="i == 0 ? 'text-xs-left' : 'text-xs-right'" v-for="(n, i) in columns">{{ props.item[n] }}</td>
-        </template>
-
-      </v-data-table>
-      </v-container>
-    </v-content>
-  </div>
+  </v-data-table>
 </template>
 
 <script>
