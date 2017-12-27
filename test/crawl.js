@@ -18,7 +18,7 @@ describe('crawl', function (){
       `${__dirname}/../examples/crawl_no_javascript.js`
     ], execOption)
 
-    assert(JSON.parse(r).result.title.match(/百度/))
+    assert(r.match(/passed/))
   })
 
   it("crawl page with javascript", async function(){
@@ -30,7 +30,7 @@ describe('crawl', function (){
       `${__dirname}/../examples/crawl_with_javascript.js`
     ], execOption)
 
-    assert(JSON.parse(r).result.title.match(/关于百度/))
+    assert(r.match(/passed/))
   })
 
   it("crawl image", async function(){
@@ -42,6 +42,6 @@ describe('crawl', function (){
       `${__dirname}/../examples/crawl_image.js`
     ], execOption)
 
-    assert(JSON.parse(r).result.image.length > 1024)
+    assert(r.match(/passed/))
   })
 })
