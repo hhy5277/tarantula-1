@@ -32,13 +32,18 @@ program
 
 
 const external = ((scriptFile) => {
+  let fileBuffer
   if (scriptFile){
     debug.info(`load script file: ${program.args[0]}`)
-    return require(path.resolve(program.args[0]))
+    fileBuffer = fs.readFileSync(path.resolve(program.args[0]), {encoding: 'utf-8'})
+  }else{
+    process.stdin.setEncoding('utf8')
+    fileBuffer = fs.readFileSync(process.stdin.fd).toString()
   }
 
-  process.stdin.setEncoding('utf8');
-  return requireString(fs.readFileSync(process.stdin.fd).toString())
+  return requireString(fileBuffer, {
+    appendPaths: path.resolve(require.resolve("../package.json"), "..", "node_modules")
+  })
 })(program.args[0])
 
 const url = program.url || external.config.url
