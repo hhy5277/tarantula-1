@@ -1,4 +1,4 @@
-FROM node:8.9.1
+FROM node:8.9.1-alpine
 
 ARG registry="https://registry.npmjs.org"
 
@@ -6,14 +6,12 @@ ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 ENV PHANTOMJS_CDNURL https://npm.taobao.org/mirrors/phantomjs
 ENV NODE_ENV=production
-
-#RUN cp /usr/share/zoneinfo/Asia/Chongqing /etc/localtime
+ENV NODE_SASS_PLATFORM alpine
 
 RUN npm config set registry $registry -g
-ADD http://mirrors.163.com/.help/sources.list.jessie /etc/apt/sources.list
-#RUN apt-get update
-#RUN apt-get install apt-utils -y
-#RUN apt-get install xvfb firefox-esr -y
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+RUN apk add -U tzdata nano git python build-base curl bash file gcc g++ make curl-dev
+#RUN apk add xvfb firefox-esr geckodriver
 
 RUN npm i tarantulajs -g --unsafe-perm
 
