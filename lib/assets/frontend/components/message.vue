@@ -1,3 +1,13 @@
+<style lang='scss' scoped>
+.message{
+  font-size: 12px;
+  word-wrap: break-word;
+  // /width: 200px;
+  overflow: auto;
+
+}
+</style>
+
 <template>
   <v-content>
     <v-container>
@@ -13,7 +23,7 @@
             </div>
           </v-card-title>
           <v-card-text>
-            <pre>{{ item.message }}</pre>
+            <pre class='message'>{{ item.message }}</pre>
           </v-card-text>
         </v-card>
       </template>
