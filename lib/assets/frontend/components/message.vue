@@ -60,12 +60,12 @@ export default {
 
   watch: {
     dashbordProjects(){
-      this.actionGetMessage()
+      this.actionGetMessage().then((r) => this.items = r)
     }
   },
 
   created(){
-    this.actionGetMessage()
+    this.actionGetMessage().then((r) => this.items = r)
   }
 }
 </script>
