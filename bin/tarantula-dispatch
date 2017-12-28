@@ -235,7 +235,7 @@ logger.info(`debug mode: ${DEBUG}`)
           }).value()
         }
       }catch(e){
-        if (task.attempts >= 3){
+        if (task.attempts >= 2){
           logger.error(`${runCommand} ${runParams} message: ${e}`)
         }else{
           logger.warn(`${runCommand} ${runParams} message: ${e}`)
