@@ -1,6 +1,6 @@
 {
   "name": "tarantulajs",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "main": "app.js",
   "scripts": {
     "start": "nodemon lib/app.js",
