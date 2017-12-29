@@ -46,10 +46,7 @@
 	},
 	"stats": {
 		"title": "项目统计"
-	},
-	"table": {
-		"title": "数据采样"
-	},
+	},	
 	"download": {
 		"filter": {
 			"selectProject": "选择项目",
