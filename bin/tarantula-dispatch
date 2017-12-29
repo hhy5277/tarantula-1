@@ -168,7 +168,7 @@ logger.info(`debug mode: ${DEBUG}`)
       scriptCode = _.filter(scriptCode, (n) => moment().diff(n.updatedAt, "days") < 15)
 
       return r
-    })    
+    })
     .value()
   }).then(({proxies, tasks}) => {
     if (_.isNil(tasks) || _.isEmpty(tasks)){
@@ -205,8 +205,9 @@ logger.info(`debug mode: ${DEBUG}`)
         })
       }
 
+      const s = _.find(scriptCode, (n) => n.md5 == task.md5)
+
       try{
-        const s = _.find(scriptCode, (n) => n.md5 == task.md5)
         const { stdout, stderr } = spawnSync(runCommand, runParams, {
           env: env,
           maxBuffer: OUTPUT_BUFFER_SIZE,
@@ -234,10 +235,11 @@ logger.info(`debug mode: ${DEBUG}`)
           }).value()
         }
       }catch(e){
+        const errString = `${runCommand} ${_.get(s, "scriptName")} ${_.get(s, "md5")} ${runParams.join(" ")} message: ${e}`
         if (task.attempts >= 2){
-          logger.error(`${runCommand} ${runParams} message: ${e}`)
+          logger.error(errString)
         }else{
-          logger.warn(`${runCommand} ${runParams} message: ${e}`)
+          logger.warn(errString)
         }
 
         return {
