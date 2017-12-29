@@ -143,7 +143,7 @@ logger.info(`debug mode: ${DEBUG}`)
     .reject((n) => {
       const nn = _.find(scriptCode, (m) => m.scriptName == n.scriptName && m.md5 == n.md5)
       if (nn){
-        nn.updatedAt = moment().toDate()
+        nn.updatedAt = moment()
       }
 
       return nn
@@ -161,15 +161,14 @@ logger.info(`debug mode: ${DEBUG}`)
 
       _.each(itemsCode || [], (n) => {
         scriptCode.push(_.merge(n, {
-          updatedAt: moment().toDate()
+          updatedAt: moment()
         }))
       })
 
+      scriptCode = _.filter(scriptCode, (n) => moment().diff(n.updatedAt, "days") < 15)
+
       return r
-    })
-    .tap(() => {
-      scriptCode = _.filter((n) => moment().diff(n.updatedAt, "days") < 15)
-    })
+    })    
     .value()
   }).then(({proxies, tasks}) => {
     if (_.isNil(tasks) || _.isEmpty(tasks)){
