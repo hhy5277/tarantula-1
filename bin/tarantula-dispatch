@@ -109,10 +109,6 @@ logger.info(`debug mode: ${DEBUG}`)
   clean()
 
   const ROOT_URL = await (async () => {
-    if (DEBUG){
-      return "http://localhost:3000"
-    }
-
     if (!_.isEmpty(program.server || "")){
       return program.server
     }
