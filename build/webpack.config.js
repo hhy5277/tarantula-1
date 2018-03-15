@@ -167,8 +167,7 @@ config.plugins = config.plugins.concat([
     append: false,
     publicPath: "",
     assets: [
-      // { path: '//fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons', type: 'css' },
-      { path: '//fonts.cat.net/css?family=Roboto:300,400,500,700|Material+Icons', type: 'css' },
+      { path: '//fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons', type: 'css' },
 
     ].concat(_.chain(assets).map((n) => {
       if (isProduction){
